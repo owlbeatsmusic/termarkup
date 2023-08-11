@@ -39,6 +39,7 @@ void add_token(int *tokens_index, Token token, char *content) {
 	tokens[*tokens_index].token = token;
 	tokens[*tokens_index].content = (char *)malloc(sizeof(content));
 	strcpy(tokens[*tokens_index].content, content);
+	*tokens_index += 1;
 }
 
 void tokenize(char *file_content, int file_size) {
@@ -46,7 +47,6 @@ void tokenize(char *file_content, int file_size) {
 	for (int i = 0; i < file_size; i++) {
 		if (file_content[i] == '\n') {
 			add_token(&tokens_index, NEW_LINE, " ");
-			tokens_index++;
 		}
 	}
 }
@@ -77,48 +77,49 @@ void write_formatted() {
 
 int main(int argc, char *argv[]) {
 	if (!strcmp(argv[1], "-help")) {
-		printf("\n\x1B[2m\t            string      int\x1B[0m\n");
-		printf("\t./termarkup [file_path] [file_width]\n\n");
+		printf("\n\x1B[2m\t            string       string        int\x1B[0m\n");
+		printf("\t./termarkup [input_file] [output_file] [file_width]\n\n");
 		return 0;
 	}
-	char *file_path = argv[1];
+	char *input_file_path  = argv[1];
+	char *output_file_path = argv[2];
 	int width;
-	if (sscanf(argv[2], "%d", &width) != 1) {
+	if (sscanf(argv[3], "%d", &width) != 1) {
 		error_prefix_print();
 		printf("could not convert second argument to integer\n");
 		return -1;
 	}
 	
 	// reading the file
-	FILE *file = fopen(file_path, "r");
-	if (file == NULL) {
+	FILE *input_file = fopen(input_file_path, "r");
+	if (input_file == NULL) {
 		error_prefix_print();
-		printf("could not open file(%s)\n", file_path);
+		printf("could not open input file(%s)\n", input_file_path);
 		return -1;
 	}
-	fseek(file, 0, SEEK_END);
-	int file_size = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	fseek(input_file, 0, SEEK_END);
+	int input_file_size = ftell(input_file);
+	fseek(input_file, 0, SEEK_SET);
 
-	char *file_content = (char *)malloc(file_size + 1);
-	if (file_content == NULL) {
+	char *input_file_content = (char *)malloc(input_file_size + 1);
+	if (input_file_content == NULL) {
 		error_prefix_print();
-		printf("failed to allocate memory for \"file_content\"\n");
+		printf("failed to allocate memory for \"input_file_content\"\n");
 	}
-	file_content[file_size] = '\0';
+	input_file_content[input_file_size] = '\0';
 
-	size_t read_size = fread(file_content, 1, file_size, file);
-	if (read_size != file_size) {
-		free(file_content);
+	size_t input_file_read_size = fread(input_file_content, 1, input_file_size, input_file);
+	if (input_file_read_size != input_file_size) {
+		free(input_file_content);
 		error_prefix_print();
-		printf("failed to read file");
+		printf("failed to read input file");
 		return -1;
 	}
 
-	tokenize(file_content, file_size);
+	tokenize(input_file_content, input_file_size);
 	dev_print_tokens();
 
-	free(file_content);
+	free(input_file_content);
 }
 
 

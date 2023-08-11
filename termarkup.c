@@ -36,10 +36,9 @@ typedef struct {
 TokenContent tokens[TOKENS_SIZE];
 
 void add_token(int *tokens_index, Token token, char *content) {
-	tokens[tokens_index].token = token;
-	tokens[tokens_index].content = (char *)malloc(sizeof(content));
-	strcpy(tokens[tokens_index].content, content);
-	tokens_index++;
+	tokens[*tokens_index].token = token;
+	tokens[*tokens_index].content = (char *)malloc(sizeof(content));
+	strcpy(tokens[*tokens_index].content, content);
 }
 
 void tokenize(char *file_content, int file_size) {
@@ -47,6 +46,7 @@ void tokenize(char *file_content, int file_size) {
 	for (int i = 0; i < file_size; i++) {
 		if (file_content[i] == '\n') {
 			add_token(&tokens_index, NEW_LINE, " ");
+			tokens_index++;
 		}
 	}
 }

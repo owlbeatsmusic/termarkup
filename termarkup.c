@@ -1,7 +1,5 @@
 /*
-	input.tmkp
-	
-
+	output.tmkp
 */
 #include <string.h>
 #include <stdlib.h>
@@ -42,11 +40,23 @@ void add_token(int *tokens_index, Token token, char *content) {
 	*tokens_index += 1;
 }
 
-void tokenize(char *file_content, int file_size) {
+int str_compare_at_index(char *content, int index, char* compare) {
+	for (int i = 0; i < sizeof(compare)-1; i++) {
+		printf("%c == %c : %d\n", content[i+index], compare[i], index);
+		if (content[index+i] != compare[i]) return 0; 
+	}
+	printf("true1\n");
+	return 1;
+}
+
+void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
-		if (file_content[i] == '\n') {
+		if (content[i] == '\n') {
 			add_token(&tokens_index, NEW_LINE, " ");
+		}
+		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
+			printf("true2\n");
 		}
 	}
 }
@@ -72,7 +82,7 @@ void dev_print_tokens() {
 }
 
 void write_formatted() {
-
+	
 }
 
 int main(int argc, char *argv[]) {
@@ -86,9 +96,10 @@ int main(int argc, char *argv[]) {
 	int width;
 	if (sscanf(argv[3], "%d", &width) != 1) {
 		error_prefix_print();
-		printf("could not convert second argument to integer\n");
+		printf("could not convert third argument to int (use -help)\n");
 		return -1;
 	}
+
 	
 	// reading the file
 	FILE *input_file = fopen(input_file_path, "r");
@@ -115,6 +126,7 @@ int main(int argc, char *argv[]) {
 		printf("failed to read input file");
 		return -1;
 	}
+
 
 	tokenize(input_file_content, input_file_size);
 	dev_print_tokens();

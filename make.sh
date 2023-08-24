@@ -1,3 +1,3 @@
-#!/bin/ash
+#!/bin/zsh
 
 gcc -o termarkup termarkup.c

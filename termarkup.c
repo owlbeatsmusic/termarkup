@@ -43,7 +43,7 @@ void add_token(int *tokens_index, Token token, char *content) {
 int str_compare_at_index(char *content, int index, char* compare) {
 	for (int i = 0; i < sizeof(compare)-1; i++) {
 		printf("%c == %c : %d\n", content[i+index], compare[i], index);
-		if (content[index+i] != compare[i]) return 0; 
+		if (content[index+i] == compare[i]) return 0; 
 	}
 	printf("true1\n");
 	return 1;
@@ -56,7 +56,6 @@ void tokenize(char *content, int file_size) {
 			add_token(&tokens_index, NEW_LINE, " ");
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
-			printf("true2\n");
 		}
 	}
 }
@@ -86,6 +85,11 @@ void write_formatted() {
 }
 
 int main(int argc, char *argv[]) {
+	if (argc < 4) {
+		printf("\n\x1B[2m\t            string       string        int\x1B[0m\n");
+		printf("\t./termarkup [input_file] [output_file] [file_width]\n\n");
+		return 0;
+	}
 	if (!strcmp(argv[1], "-help")) {
 		printf("\n\x1B[2m\t            string       string        int\x1B[0m\n");
 		printf("\t./termarkup [input_file] [output_file] [file_width]\n\n");
@@ -99,7 +103,6 @@ int main(int argc, char *argv[]) {
 		printf("could not convert third argument to int (use -help)\n");
 		return -1;
 	}
-
 	
 	// reading the file
 	FILE *input_file = fopen(input_file_path, "r");

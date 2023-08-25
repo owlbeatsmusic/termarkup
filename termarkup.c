@@ -41,11 +41,9 @@ void add_token(int *tokens_index, Token token, char *content) {
 }
 
 int str_compare_at_index(char *content, int index, char* compare) {
-	for (int i = 0; i < sizeof(compare)-1; i++) {
-		printf("%c == %c : %d\n", content[i+index], compare[i], index);
-		if (content[index+i] == compare[i]) return 0; 
+	for (int i = 0; i < strlen(compare); i++) {
+		if (content[index+i] != compare[i]) return 0; 
 	}
-	printf("true1\n");
 	return 1;
 }
 
@@ -56,6 +54,7 @@ void tokenize(char *content, int file_size) {
 			add_token(&tokens_index, NEW_LINE, " ");
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
+			add_token(&tokens_index, HEADING_1, " ");
 		}
 	}
 }

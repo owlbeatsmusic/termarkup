@@ -21,6 +21,8 @@ typedef enum {
 	SIDE_ARROW,
 	DIVIDER,
 	CALLOUT,
+	
+	TEXT,
 
 	NEW_LINE,
 	END_FILE,
@@ -55,7 +57,31 @@ void tokenize(char *content, int file_size) {
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
 			add_token(&tokens_index, HEADING_1, " ");
+			i += 1;		
 		}
+		else if (str_compare_at_index(content, i, "**!") && content[i+3] != '!') {
+			add_token(&tokens_index, HEADING_2, " ");
+			i += 2;	
+		}
+		else if (str_compare_at_index(content, i, "***!") && content[i+4] != '!') {
+			add_token(&tokens_index, HEADING_3, " ");
+			i += 3;
+		}
+		else if (content[i] == '+' && content[i+1] == '-') {
+			add_token(&tokens_index, SIDE_ARROW, " ");
+			i += 1;
+			
+		}
+		else {
+			char text_buffer[512];
+			int j = 0;
+			while (content[i+j+1] != '\n') {
+				text_buffer[j] = content[i+j];
+				j++;
+			}
+			add_token(&tokens_index, TEXT, text_buffer);
+			i += strlen(text_buffer);
+		}	
 	}
 }
 
@@ -64,9 +90,11 @@ void dev_print_tokens() {
 		"HEADING_1",
 		"HEADING_2",
 		"HEADING_3",
-		"SIZE_ARROW",
+		"SIDE_ARROW",
 		"DVIIDER",
 		"CALLOUT",
+
+		"TEXT",
 
 		"NEW_LINE",
 		"END_FILE"

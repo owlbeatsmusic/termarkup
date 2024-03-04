@@ -52,36 +52,38 @@ int str_compare_at_index(char *content, int index, char* compare) {
 void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
+		Token temp_token = TEXT;
 		if (content[i] == '\n') {
 			add_token(&tokens_index, NEW_LINE, " ");
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
-			add_token(&tokens_index, HEADING_1, " ");
+			temp_token = HEADING_1;
 			i += 1;		
-		}
+		} 
 		else if (str_compare_at_index(content, i, "**!") && content[i+3] != '!') {
-			add_token(&tokens_index, HEADING_2, " ");
+			temp_token = HEADING_2;
 			i += 2;	
 		}
 		else if (str_compare_at_index(content, i, "***!") && content[i+4] != '!') {
-			add_token(&tokens_index, HEADING_3, " ");
+			temp_token = HEADING_3;
 			i += 3;
 		}
 		else if (content[i] == '+' && content[i+1] == '-') {
-			add_token(&tokens_index, SIDE_ARROW, " ");
+			temp_token = SIDE_ARROW;
 			i += 1;
 			
 		}
-		else {
-			char text_buffer[512];
+		if (temp_token != NEW_LINE) {
+		char text_buffer[512];
 			int j = 0;
 			while (content[i+j+1] != '\n') {
 				text_buffer[j] = content[i+j];
 				j++;
 			}
-			add_token(&tokens_index, TEXT, text_buffer);
+			add_token(&tokens_index, temp_token, text_buffer);
 			i += strlen(text_buffer);
-		}	
+		}
+		
 	}
 }
 

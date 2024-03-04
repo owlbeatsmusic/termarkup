@@ -7,11 +7,9 @@
 
 #define TOKENS_SIZE 512 // could probably estmate it better but works for now
 
-
-// "tool" funtions
-void error_prefix_print() {
-	printf("%s%serror%s: ", "\x1B[1m", "\x1B[31m", "\x1B[0m");
-}
+#define MSG_PRINT   "[\033[0;33mtmpk\033[0m]:"
+#define ERROR_PRINT "[\033[0;31merror\033[0m]:"
+#define DEBUG_PRINT "[\033[0;35mdebug\033[0m]:"
 
 
 typedef enum {
@@ -135,18 +133,17 @@ int main(int argc, char *argv[]) {
 	}
 	char *input_file_path  = argv[1];
 	char *output_file_path = argv[2];
+	
 	int width;
 	if (sscanf(argv[3], "%d", &width) != 1) {
-		error_prefix_print();
-		printf("could not convert third argument to int (use -help)\n");
+		printf("%s could not convert third argument to int (use -help)\n", ERROR_PRINT);
 		return -1;
 	}
 	
 	// reading the file
 	FILE *input_file = fopen(input_file_path, "r");
 	if (input_file == NULL) {
-		error_prefix_print();
-		printf("could not open input file(%s)\n", input_file_path);
+		printf("%s could not open input file(%s)\n", ERROR_PRINT, input_file_path);
 		return -1;
 	}
 	fseek(input_file, 0, SEEK_END);
@@ -155,19 +152,16 @@ int main(int argc, char *argv[]) {
 
 	char *input_file_content = (char *)malloc(input_file_size + 1);
 	if (input_file_content == NULL) {
-		error_prefix_print();
-		printf("failed to allocate memory for \"input_file_content\"\n");
+		printf("%s failed to allocate memory for \"input_file_content\"\n", ERROR_PRINT);
 	}
 	input_file_content[input_file_size] = '\0';
 
 	size_t input_file_read_size = fread(input_file_content, 1, input_file_size, input_file);
 	if (input_file_read_size != input_file_size) {
 		free(input_file_content);
-		error_prefix_print();
-		printf("failed to read input file");
+		printf("%s failed to read input file", ERROR_PRINT);
 		return -1;
 	}
-
 
 	tokenize(input_file_content, input_file_size);
 	dev_print_tokens();

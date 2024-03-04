@@ -55,28 +55,36 @@ void tokenize(char *content, int file_size) {
 		Token temp_token = TEXT;
 		if (content[i] == '\n') {
 			add_token(&tokens_index, NEW_LINE, " ");
+			temp_token = NEW_LINE;
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
 			temp_token = HEADING_1;
-			i += 1;		
+			i += 2;		
 		} 
-		else if (str_compare_at_index(content, i, "**!") && content[i+3] != '!') {
+		else if (str_compare_at_index(content, i, "*!!") && content[i+3] != '!') {
 			temp_token = HEADING_2;
-			i += 2;	
+			i += 3;	
 		}
-		else if (str_compare_at_index(content, i, "***!") && content[i+4] != '!') {
+		else if (str_compare_at_index(content, i, "*!!!") && content[i+4] != '!') {
 			temp_token = HEADING_3;
-			i += 3;
+			i += 4;
 		}
-		else if (content[i] == '+' && content[i+1] == '-') {
+		else if (str_compare_at_index(content, i, "+-")) {
 			temp_token = SIDE_ARROW;
-			i += 1;
+			i += 2;
 			
 		}
-		if (temp_token != NEW_LINE) {
+		else if (str_compare_at_index(content, i, "---")) {
+			add_token(&tokens_index, DIVIDER, " ");
+			temp_token = DIVIDER;
+			i += 3;
+		}
+		if (temp_token != NEW_LINE && temp_token != DIVIDER) {
 		char text_buffer[512];
-			int j = 0;
-			while (content[i+j+1] != '\n') {
+		memset(text_buffer, 0, sizeof(text_buffer));
+			int j = -1;
+			if (content[i] == ' ') i++; 
+			while (content[i+j] != '\n') {
 				text_buffer[j] = content[i+j];
 				j++;
 			}
@@ -88,6 +96,7 @@ void tokenize(char *content, int file_size) {
 }
 
 void dev_print_tokens() {
+	// same order as defined in enum
 	char *token_names[] = {
 		"HEADING_1",
 		"HEADING_2",
@@ -104,7 +113,7 @@ void dev_print_tokens() {
 	printf("[");
 	for (int i = 0; i < sizeof(tokens) / sizeof(TokenContent); i++) {
 		if (tokens[i].content == NULL) continue;
-		printf("[%s, %s], ", token_names[tokens[i].token], tokens[i].content);
+		printf("[%s, %s], \n", token_names[tokens[i].token], tokens[i].content);
 	}
 	printf("]\n");
 }

@@ -1,2 +1,2 @@
 # termarkup
-A Terminal Markup Language.
+A "Terminal" Plain Text Markup Language.

@@ -52,7 +52,7 @@ void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
 		Token temp_token = TEXT;
-		if (content[i] == '\n') {
+		if (str_compare_at_index(content, i, "\n")) {
 			add_token(&tokens_index, NEW_LINE, " ");
 			temp_token = NEW_LINE;
 		}
@@ -76,22 +76,27 @@ void tokenize(char *content, int file_size) {
 		else if (str_compare_at_index(content, i, "---")) {
 			add_token(&tokens_index, DIVIDER, " ");
 			temp_token = DIVIDER;
-			i += 3;
+			i += 2;
 		}
 		if (temp_token != NEW_LINE && temp_token != DIVIDER) {
 		char text_buffer[512];
 		memset(text_buffer, 0, sizeof(text_buffer));
-			int j = -1;
+			int j = 0;
 			if (content[i] == ' ') i++; 
 			while (content[i+j] != '\n') {
 				text_buffer[j] = content[i+j];
 				j++;
 			}
 			add_token(&tokens_index, temp_token, text_buffer);
-			i += strlen(text_buffer);
+			i += strlen(text_buffer)-1;
 		}
 		
 	}
+}
+
+char *generate_output() {
+
+	return "";
 }
 
 void dev_print_tokens() {
@@ -148,7 +153,7 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	fseek(input_file, 0, SEEK_END);
-	int input_file_size = ftell(input_file);
+	size_t input_file_size = ftell(input_file);
 	fseek(input_file, 0, SEEK_SET);
 
 	char *input_file_content = (char *)malloc(input_file_size + 1);
@@ -166,6 +171,8 @@ int main(int argc, char *argv[]) {
 
 	tokenize(input_file_content, input_file_size);
 	dev_print_tokens();
+
+	generate_output();
 
 	free(input_file_content);
 }

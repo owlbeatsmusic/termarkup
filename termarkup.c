@@ -5,8 +5,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
-#define TOKENS_SIZE 512 // could probably estmate it better but works for now
+#define MAX_TOKENS 512 // could probably estmate it better but works for now
 
 #define MSG_PRINT   "[\033[0;33mtmpk\033[0m]:"
 #define ERROR_PRINT "[\033[0;31merror\033[0m]:"
@@ -32,13 +33,16 @@ typedef struct {
 	char *content;
 } TokenContent;
 
-TokenContent tokens[TOKENS_SIZE];
+TokenContent tokens[MAX_TOKENS];
+unsigned int output_width;
+unsigned int output_lines;
 
 void add_token(int *tokens_index, Token token, char *content) {
 	tokens[*tokens_index].token = token;
 	tokens[*tokens_index].content = (char *)malloc(sizeof(content));
 	strcpy(tokens[*tokens_index].content, content);
 	*tokens_index += 1;
+	return;
 }
 
 int str_compare_at_index(char *content, int index, char* compare) {
@@ -84,19 +88,82 @@ void tokenize(char *content, int file_size) {
 			int j = 0;
 			if (content[i] == ' ') i++; 
 			while (content[i+j] != '\n') {
+				if (j > output_width) output_lines++;
 				text_buffer[j] = content[i+j];
 				j++;
 			}
 			add_token(&tokens_index, temp_token, text_buffer);
 			i += strlen(text_buffer)-1;
 		}
-		
+		//TODO: if ( token does not give a multiple line output)
+		output_lines++;	
 	}
 }
 
-char *generate_output() {
+unsigned int output_index = 0;
 
-	return "";
+void append_to_string(char *dest, char *from) {
+	output_index += strlen(from);
+	strncat(dest, from, output_index);
+
+	return;
+}
+
+char *cut_content_to_fit(char *content, char* before, char* after) {
+	char *cut_output = malloc(sizeof(content) + sizeof(before) + sizeof(after));
+	unsigned int cut_output_index = 0;
+
+	strncat(cut_output, before, cut_output_index);
+	cut_output_index += sizeof(before) * sizeof(char);
+	
+	for (int i = 0; i < fmax(0, output_width-(sizeof(content) + sizeof(after)) / sizeof(char)); i++) {
+		content[strlen(content)-1] = '\0';	
+	}	
+
+	strncat(cut_output, content, cut_output_index);
+	cut_output_index += sizeof(content) * sizeof(char);
+	strncat(cut_output, after, cut_output_index);
+
+
+	return cut_output;
+}
+
+char *generate_output() {
+	char *output = malloc(sizeof(char) * output_width * output_lines);
+	
+	for (int i = 0; i < MAX_TOKENS; i++) {
+		if (tokens[i].content == NULL) break;
+		if (tokens[i].token == NEW_LINE) append_to_string(output, "\n");
+		else if (tokens[i].token == HEADING_1) {
+			char *fit_content =  cut_content_to_fit(tokens[i].content, "*- ", " -*");
+			append_to_string(output, fit_content);
+			free(fit_content);
+		}
+		else if (tokens[i].token == HEADING_2) {
+			append_to_string(output, "**- ");
+			append_to_string(output, tokens[i].content);
+			append_to_string(output, " -**");
+		}
+		else if (tokens[i].token == HEADING_3) {
+			append_to_string(output, "***- ");
+			append_to_string(output, tokens[i].content);
+			append_to_string(output, " -***");
+		}
+		else if (tokens[i].token == SIDE_ARROW) {
+			append_to_string(output, "╰ ");
+			append_to_string(output, tokens[i].content);
+		}
+		else if (tokens[i].token == DIVIDER) {
+			char div[output_width];
+			memset(div, 45, output_width); // 45 = '-'
+			append_to_string(output, div);
+		}
+		else {
+			append_to_string(output, tokens[i].content);
+		}
+	}
+	output[output_index] = '\0';
+	return output;
 }
 
 void dev_print_tokens() {
@@ -122,10 +189,6 @@ void dev_print_tokens() {
 	printf("]\n");
 }
 
-void write_formatted() {
-	
-}
-
 int main(int argc, char *argv[]) {
 	if (argc < 4) {
 		printf("\n\x1B[2m\t            string       string        int\x1B[0m\n");
@@ -140,12 +203,12 @@ int main(int argc, char *argv[]) {
 	char *input_file_path  = argv[1];
 	char *output_file_path = argv[2];
 	
-	int width;
-	if (sscanf(argv[3], "%d", &width) != 1) {
+	if (sscanf(argv[3], "%d", &output_width) != 1) {
 		printf("%s could not convert third argument to int (use -help)\n", ERROR_PRINT);
 		return -1;
 	}
 	
+
 	// reading the file
 	FILE *input_file = fopen(input_file_path, "r");
 	if (input_file == NULL) {
@@ -158,6 +221,7 @@ int main(int argc, char *argv[]) {
 
 	char *input_file_content = (char *)malloc(input_file_size + 1);
 	if (input_file_content == NULL) {
+		fclose(input_file);
 		printf("%s failed to allocate memory for \"input_file_content\"\n", ERROR_PRINT);
 	}
 	input_file_content[input_file_size] = '\0';
@@ -165,16 +229,27 @@ int main(int argc, char *argv[]) {
 	size_t input_file_read_size = fread(input_file_content, 1, input_file_size, input_file);
 	if (input_file_read_size != input_file_size) {
 		free(input_file_content);
+		fclose(input_file);
 		printf("%s failed to read input file", ERROR_PRINT);
 		return -1;
 	}
+	fclose(input_file);
 
 	tokenize(input_file_content, input_file_size);
+	free(input_file_content);
+	
 	dev_print_tokens();
 
-	generate_output();
+	char *output = generate_output();
 
-	free(input_file_content);
+	if (output != NULL) {
+		printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, generate_output());
+        	free((void*)output);
+    	} else {
+        	printf("Error: Memory allocation failed\n");
+    	}
+	
+	return 0;
 }
 
 

@@ -110,26 +110,46 @@ void append_to_string(char *dest, char *from) {
 }
 
 char *cut_content_to_fit(char *content, char* before, char* after) {
-	char *cut_output = malloc(sizeof(content) + sizeof(before) + sizeof(after));
+	char *cut_output = malloc((strlen(content) + strlen(before) + strlen(after)) * sizeof(char));
+	if (cut_output == NULL) {
+		printf("%s memory allocation for cut_output failed.\n", ERROR_PRINT);
+		return NULL;
+	}
+	
+	cut_output[0] = '\0';
+
 	unsigned int cut_output_index = 0;
 
-	strncat(cut_output, before, cut_output_index);
-	cut_output_index += sizeof(before) * sizeof(char);
-	
-	for (int i = 0; i < fmax(0, output_width-(sizeof(content) + sizeof(after)) / sizeof(char)); i++) {
-		content[strlen(content)-1] = '\0';	
-	}	
+	strcpy(cut_output, before);
+	cut_output_index += strlen(before);
+
+	printf("%s content=%s\n", DEBUG_PRINT, content);
+
+//	printf("%s content+after=%lu\n", DEBUG_PRINT, output_width-((sizeof(content) + sizeof(after)) / sizeof(char)));
+	printf("%s fmax=%f\n", DEBUG_PRINT, fmax(0, (output_width + strlen(before))-(strlen(content) + strlen(after))));
+
+	for (int i = 0; i < (int)fmax(0, (output_width + strlen(before))-(strlen(content) + strlen(after))); i++) {
+		content[strlen(content)-i] = '\0';
+		printf("%s 0\n", DEBUG_PRINT);
+	}
+
 
 	strncat(cut_output, content, cut_output_index);
-	cut_output_index += sizeof(content) * sizeof(char);
+	cut_output_index += strlen(content);
 	strncat(cut_output, after, cut_output_index);
+	cut_output_index += strlen(after);
 
+	strncat(cut_output, "\0", cut_output_index+1);
 
 	return cut_output;
 }
 
 char *generate_output() {
 	char *output = malloc(sizeof(char) * output_width * output_lines);
+	if (output == NULL) {
+		printf("%s memory allocation for output failed.\n", ERROR_PRINT);
+		return NULL;
+	}
 	
 	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].content == NULL) break;
@@ -243,7 +263,7 @@ int main(int argc, char *argv[]) {
 	char *output = generate_output();
 
 	if (output != NULL) {
-		printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, generate_output());
+		printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, output);
         	free((void*)output);
     	} else {
         	printf("Error: Memory allocation failed\n");

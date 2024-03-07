@@ -121,26 +121,18 @@ char *cut_content_to_fit(char *content, char* before, char* after) {
 
 	unsigned int cut_output_index = 0;
 
-	//strcpy(cut_output, before);
-	//cut_output_index += strlen(before);
-
 	printf("%s content=%s\n", DEBUG_PRINT, content);
-
-//	printf("%s content+after=%lu\n", DEBUG_PRINT, output_width-((sizeof(content) + sizeof(after)) / sizeof(char)));
-	printf("%s fmax=%d\n", DEBUG_PRINT, (int)fmax(0, (output_width + strlen(before))-(strlen(content) + strlen(after))));
-
-	for (int i = 1; i < (int)fmax(0, (output_width - strlen(before))-(strlen(content) + strlen(after))); i++) {
-		content[strlen(content)-1] = '\0';
-		printf("%s 0\n", DEBUG_PRINT);
+	//int charcters_to_cut = (output_width + strlen(before) + 1)-(strlen(content) + strlen(after));
+	int charcters_to_cut = (strlen(before)+strlen(content)+strlen(after)+1) - output_width;
+	//printf("%s fmax=%d\n", DEBUG_PRINT, (int)fmax(0, (output_width + strlen(before))-(strlen(content) + strlen(after))));
+	printf("%s cut=%d\n", DEBUG_PRINT, charcters_to_cut);
+	printf("%s strlens=%lu    output_width=%d\n", DEBUG_PRINT, strlen(before) + strlen(content) + strlen(after), output_width);
+	if (strlen(before) + strlen(content) + strlen(after) > output_width) {
+		for (int i = 1; i < charcters_to_cut; i++) {
+			content[strlen(content)-1] = '\0';
+			printf("%s 0\n", DEBUG_PRINT);
+		}
 	}
-	content[strlen(content)] = '\0';
-
-	//strncat(cut_output, content, cut_output_index);
-	//cut_output_index += strlen(content);
-	//strncat(cut_output, after, cut_output_index);
-	//cut_output_index += strlen(after);
-
-	//strncat(cut_output, "\0", cut_output_index+1);
 	
 	sprintf(cut_output, "%s%s%s", before, content, after);
 

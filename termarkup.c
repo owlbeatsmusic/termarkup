@@ -13,6 +13,10 @@
 #define ERROR_PRINT "[\033[0;31merror\033[0m]:"
 #define DEBUG_PRINT "[\033[0;35mdebug\033[0m]:"
 
+typedef enum {
+	DEFAULT,
+	CENTER
+} Modifier;
 
 typedef enum {
 	HEADING_1,
@@ -31,16 +35,20 @@ typedef enum {
 typedef struct {
 	Token token;
 	char *content;
+	Modifier modifier;
 } TokenContent;
 
 TokenContent tokens[MAX_TOKENS];
+
+
 unsigned int output_width;
 unsigned int output_lines;
 
-void add_token(int *tokens_index, Token token, char *content) {
+void add_token(int *tokens_index, Token token, char *content, Modifier modifier) {
 	tokens[*tokens_index].token = token;
 	tokens[*tokens_index].content = (char *)malloc(sizeof(content));
 	strcpy(tokens[*tokens_index].content, content);
+	tokens[*tokens_index].modifier = modifier;
 	*tokens_index += 1;
 	return;
 }
@@ -56,8 +64,13 @@ void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
 		Token temp_token = TEXT;
+		Modifier temp_modifier = DEFAULT;
+		if (str_compare_at_index(content, i, "%c")) {
+			temp_modifier = CENTER;
+			i += 2;	
+		}
 		if (str_compare_at_index(content, i, "\n")) {
-			add_token(&tokens_index, NEW_LINE, " ");
+			add_token(&tokens_index, NEW_LINE, " ", temp_modifier);
 			temp_token = NEW_LINE;
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
@@ -78,7 +91,7 @@ void tokenize(char *content, int file_size) {
 			
 		}
 		else if (str_compare_at_index(content, i, "---")) {
-			add_token(&tokens_index, DIVIDER, " ");
+			add_token(&tokens_index, DIVIDER, " ", temp_modifier);
 			temp_token = DIVIDER;
 			i += 2;
 		}
@@ -92,7 +105,7 @@ void tokenize(char *content, int file_size) {
 				text_buffer[j] = content[i+j];
 				j++;
 			}
-			add_token(&tokens_index, temp_token, text_buffer);
+			add_token(&tokens_index, temp_token, text_buffer, temp_modifier);
 			i += strlen(text_buffer)-1;
 		}
 		//TODO: if ( token does not give a multiple line output)
@@ -109,7 +122,7 @@ void append_to_string(char *dest, char *from) {
 	return;
 }
 
-char *cut_content_to_fit(char *content, char* before, char* after) {
+char *cut_content_to_fit(char *content, char* before, char* after, Modifier modifier) {
 	char *cut_output = malloc((strlen(content) + strlen(before) + strlen(after)) * sizeof(char));
 	memset(cut_output, 0, strlen(cut_output) * sizeof(char));
 	if (cut_output == NULL) {
@@ -122,9 +135,7 @@ char *cut_content_to_fit(char *content, char* before, char* after) {
 	unsigned int cut_output_index = 0;
 
 	printf("%s content=%s\n", DEBUG_PRINT, content);
-	//int charcters_to_cut = (output_width + strlen(before) + 1)-(strlen(content) + strlen(after));
 	int charcters_to_cut = (strlen(before)+strlen(content)+strlen(after)+1) - output_width;
-	//printf("%s fmax=%d\n", DEBUG_PRINT, (int)fmax(0, (output_width + strlen(before))-(strlen(content) + strlen(after))));
 	printf("%s cut=%d\n", DEBUG_PRINT, charcters_to_cut);
 	printf("%s strlens=%lu    output_width=%d\n", DEBUG_PRINT, strlen(before) + strlen(content) + strlen(after), output_width);
 	if (strlen(before) + strlen(content) + strlen(after) > output_width) {
@@ -133,8 +144,11 @@ char *cut_content_to_fit(char *content, char* before, char* after) {
 			printf("%s 0\n", DEBUG_PRINT);
 		}
 	}
-	
-	sprintf(cut_output, "%s%s%s", before, content, after);
+
+	char padding[(int)fmax(0, output_width - (strlen(before)+strlen(content)+strlen(after)))/2];
+	memset(padding, 32, sizeof(padding));
+
+	sprintf(cut_output, "%s%s%s%s", padding, before, content, after);
 
 	return cut_output;
 }
@@ -150,14 +164,14 @@ char *generate_output() {
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) append_to_string(output, "\n");
 		else if (tokens[i].token == HEADING_1) {
-			char *fit_content =  cut_content_to_fit(tokens[i].content, "*- ", " -*");
+			char *fit_content =  cut_content_to_fit(tokens[i].content, "*- ", " -*", tokens[i].modifier);
 			append_to_string(output, fit_content);
 			free(fit_content);
 		}
 		else if (tokens[i].token == HEADING_2) {
-			append_to_string(output, "**- ");
-			append_to_string(output, tokens[i].content);
-			append_to_string(output, " -**");
+			char *fit_content =  cut_content_to_fit(tokens[i].content, "**- ", " -**", tokens[i].modifier);
+			append_to_string(output, fit_content);
+			free(fit_content);
 		}
 		else if (tokens[i].token == HEADING_3) {
 			append_to_string(output, "***- ");
@@ -196,10 +210,14 @@ void dev_print_tokens() {
 		"NEW_LINE",
 		"END_FILE"
 	};
+	char *modifier_name[] = {
+		"DEFAULT",
+		"CENTER"
+	};
 	printf("[");
 	for (int i = 0; i < sizeof(tokens) / sizeof(TokenContent); i++) {
 		if (tokens[i].content == NULL) continue;
-		printf("[%s, %s], \n", token_names[tokens[i].token], tokens[i].content);
+		printf("[%s, %s, %s], \n", token_names[tokens[i].token], tokens[i].content, modifier_name[tokens[i].modifier]);
 	}
 	printf("]\n");
 }

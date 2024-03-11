@@ -1,4 +1,5 @@
 # termarkup
-A "Terminal" Plain Text Markup Language.
+A "Terminal" Plain Text to Plain Text Markup Language.
 
-Plain text to plain text.
+to view stylized documents in terminal.
+

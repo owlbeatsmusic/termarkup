@@ -1,5 +1,9 @@
 /*
-	output.tmkp
+TODO:
+ - fix "???" when using center modifier
+ - divider strange characters at end of line
+ - strange behaviour of "åäö"
+ - 
 */
 
 #include <string.h>

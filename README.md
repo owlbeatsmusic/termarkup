@@ -1,13 +1,23 @@
 # Termarkup
 A "Terminal" Plain Text to Plain Text Markup Language. To create/view prettier documents in terminal.
 
-Currently not working properly but source and output will look something like this.
-
-Width is specified att execution.
+> **⚠️ Currently not working properly but input and output will look something like this.**
 
 **Table of Contents**
+ - [How To](#how-to)
  - [Syntax](#syntax)
  - [Modifiers](#modifiers)
+
+## How to
+1. Compile termarkup
+   ```bash
+   $ ./make.sh
+   ```
+2. Create input file (eg: `example.txt`)
+3. Run termarkup with specified **input**, **output** and your chosen **width**.
+   ```bash
+   $ ./termarkup example.txt output.txt 40
+   ```
 
 ## Syntax
 *input - output*

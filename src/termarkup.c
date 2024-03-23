@@ -118,38 +118,51 @@ void append_to_string(char *dest, char *from) {
 	return;
 }
 
-void cut_content_to_fit(TokenContent token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean) {
+void cut_content_to_fit(TokenContent token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
 	
-	size_t cut_output_size = (strlen(token.content) + strlen(before) + strlen(after)) * sizeof(char);
-	char *cut_output = malloc((char)cut_output_size);
-	memset(cut_output, 0, cut_output_size);
-	if (cut_output == NULL) {
-		printf("%s memory allocation for cut_output failed.\n", ERROR_PRINT);
-		return;
-	}
+	char cut_output[(strlen(token.content) + strlen(before) + strlen(after))];
 	cut_output[0] = '\0';	
 	
-	char *token_content_copy = (char*) malloc(strlen(token.content)*sizeof(char));
+	char token_content_copy[strlen(token.content)];
 	strcpy(token_content_copy, token.content);
-	int characters_to_cut = (strlen(before) + strlen(token.content) + strlen(after) + 1) - output_width;	
+	int characters_to_cut = (strlen(before) + strlen(token.content) + strlen(after)+2) - output_width;	
 	if (characters_to_cut > 0) {
 		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
 		}
 	}
 	
-	sprintf(cut_output, "%s%s%s", before, token_content_copy, after);
+	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
+	char *full_width_padding = " ";
+	if (padding_size > 0 & fit_to_full_width == 1) {
+		full_width_padding = (char*)malloc(padding_size*sizeof(char));
+		if (full_width_padding == NULL) {
+			printf("%s memory allocation for full_width_padding failed.\n", ERROR_PRINT);
+			return;
+		}
+		memset(full_width_padding, 32, padding_size*sizeof(char));
+	}
+	
+		
+	sprintf(cut_output, "%s%s%s%s", before, token_content_copy, full_width_padding, after);
 	append_to_string(output, cut_output);
-	free(token_content_copy);
-	
-	int lines = ceil(strlen(token.content)/(double)(strlen(token.content)-strlen(before)-strlen(after)));
-	if (multiple_lines_boolean == 0) lines = 0; 
-	printf("%s lines=%d content=%s\n", DEBUG_PRINT, lines, token.content);
+
+	int lines = 0;
+	if (multiple_lines_boolean == 1 & strlen(token_content_copy) != 0) lines = ceil(strlen(token.content)/(double)(strlen(token_content_copy)))-1;
+	printf("%s lines=%d\n", DEBUG_PRINT, lines);
 	for (int i = 0; i < lines; i++) {
-	
+		char before_padding[strlen(before)];
+		char after_padding[strlen(after)];	
+		memset(before_padding, 32, strlen(before));	
+		memset(after_padding, 32, strlen(after));
+		before_padding[strlen(before_padding)] = '\0';
+		after_padding[strlen(after_padding)] = '\0';
+		
+		append_to_string(output, "\n");
+		token.content += output_width-strlen(before)-strlen(after);
+		cut_content_to_fit(token, before_padding, after_padding, 0, 0, 1);			
 	}
 
-	free(cut_output);
 }
 
 void generate_output() {
@@ -162,10 +175,10 @@ void generate_output() {
 	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) append_to_string(output, "\n");
-		else if (tokens[i].token == HEADING_1)  cut_content_to_fit(tokens[i], "*- ", " -*", 0, 1);
-		else if (tokens[i].token == HEADING_2)  cut_content_to_fit(tokens[i], "**- ", " -**", 0, 1);
-		else if (tokens[i].token == HEADING_3)  cut_content_to_fit(tokens[i], "***- ", " -***", 0, 1);
-		else if (tokens[i].token == SIDE_ARROW)	cut_content_to_fit(tokens[i], "╰", "", 2, 1); // 2 for "╰"
+		else if (tokens[i].token == HEADING_1)  cut_content_to_fit(tokens[i], "*- ", " -*", 0, 1, 0);
+		else if (tokens[i].token == HEADING_2)  cut_content_to_fit(tokens[i], "**- ", " -**", 0, 1, 0);
+		else if (tokens[i].token == HEADING_3)  cut_content_to_fit(tokens[i], "***- ", " -***", 0, 1, 0);
+		else if (tokens[i].token == SIDE_ARROW)	cut_content_to_fit(tokens[i], "╰", "", 2, 1, 0); // 2 for "╰"
 		else if (tokens[i].token == DIVIDER) {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'

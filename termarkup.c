@@ -17,10 +17,7 @@ TODO:
 #define ERROR_PRINT "[\033[0;31merror\033[0m]:"
 #define DEBUG_PRINT "[\033[0;35mdebug\033[0m]:"
 
-typedef enum {
-	DEFAULT,
-	CENTER
-} Modifier;
+#define ASCII_TABLE " !”#$%&’()*+,-./0123456789:;≤>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 typedef enum {
 	HEADING_1,
@@ -39,7 +36,7 @@ typedef enum {
 typedef struct {
 	Token token;
 	char *content;
-	Modifier modifier;
+	int non_ascii_offset; // because non ascii reads as two charcters.
 } TokenContent;
 
 TokenContent tokens[MAX_TOKENS];
@@ -48,11 +45,12 @@ TokenContent tokens[MAX_TOKENS];
 unsigned int output_width;
 unsigned int output_lines;
 
-void add_token(int *tokens_index, Token token, char *content, Modifier modifier) {
+void add_token(int *tokens_index, Token token, char *content, int non_ascii_offset) {
 	tokens[*tokens_index].token = token;
-	tokens[*tokens_index].content = (char *)malloc(sizeof(content));
+	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
 	strcpy(tokens[*tokens_index].content, content);
-	tokens[*tokens_index].modifier = modifier;
+	tokens[*tokens_index].content[strlen(content)] = '\0';
+	tokens[*tokens_index].non_ascii_offset = non_ascii_offset;
 	*tokens_index += 1;
 	return;
 }
@@ -68,13 +66,9 @@ void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
 		Token temp_token = TEXT;
-		Modifier temp_modifier = DEFAULT;
-		if (str_compare_at_index(content, i, "%c")) {
-			temp_modifier = CENTER;
-			i += 2;	
-		}
+		float temp_non_ascii_offset = 0;
 		if (str_compare_at_index(content, i, "\n")) {
-			add_token(&tokens_index, NEW_LINE, " ", temp_modifier);
+			add_token(&tokens_index, NEW_LINE, " ", 0);
 			temp_token = NEW_LINE;
 		}
 		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
@@ -95,21 +89,25 @@ void tokenize(char *content, int file_size) {
 			
 		}
 		else if (str_compare_at_index(content, i, "---")) {
-			add_token(&tokens_index, DIVIDER, " ", temp_modifier);
+			add_token(&tokens_index, DIVIDER, " ", 0);
 			temp_token = DIVIDER;
 			i += 2;
 		}
 		if (temp_token != NEW_LINE && temp_token != DIVIDER) {
-		char text_buffer[512];
-		memset(text_buffer, 0, sizeof(text_buffer));
+			char text_buffer[512];
+			memset(text_buffer, 0, sizeof(text_buffer));
 			int j = 0;
 			if (content[i] == ' ') i++; 
 			while (content[i+j] != '\n') {
 				if (j > output_width) output_lines++;
 				text_buffer[j] = content[i+j];
+				if (text_buffer[j] > 127 | text_buffer[j] < 0) {
+					temp_non_ascii_offset += 0.5f;
+				}
 				j++;
 			}
-			add_token(&tokens_index, temp_token, text_buffer, temp_modifier);
+			text_buffer[strlen(text_buffer)] = '\0';
+			add_token(&tokens_index, temp_token, text_buffer, (int)temp_non_ascii_offset);
 			i += strlen(text_buffer)-1;
 		}
 		//TODO: if ( token does not give a multiple line output)
@@ -126,33 +124,25 @@ void append_to_string(char *dest, char *from) {
 	return;
 }
 
-char *cut_content_to_fit(char *content, char* before, char* after, Modifier modifier) {
-	char *cut_output = malloc((strlen(content) + strlen(before) + strlen(after)) * sizeof(char));
-	memset(cut_output, 0, strlen(cut_output) * sizeof(char));
+char *cut_content_to_fit(TokenContent *token, char *before, char *after) {
+	size_t cut_output_size = (strlen(token->content) + strlen(before) + strlen(after)) * sizeof(char);
+	char *cut_output = malloc((char)cut_output_size);
+	memset(cut_output, 0, cut_output_size);
 	if (cut_output == NULL) {
 		printf("%s memory allocation for cut_output failed.\n", ERROR_PRINT);
 		return NULL;
 	}
 	
 	cut_output[0] = '\0';
-
-	unsigned int cut_output_index = 0;
-
-	printf("%s content=%s\n", DEBUG_PRINT, content);
-	int charcters_to_cut = (strlen(before)+strlen(content)+strlen(after)+1) - output_width;
-	printf("%s cut=%d\n", DEBUG_PRINT, charcters_to_cut);
-	printf("%s strlens=%lu    output_width=%d\n", DEBUG_PRINT, strlen(before) + strlen(content) + strlen(after), output_width);
-	if (strlen(before) + strlen(content) + strlen(after) > output_width) {
-		for (int i = 1; i < charcters_to_cut; i++) {
-			content[strlen(content)-1] = '\0';
-			printf("%s 0\n", DEBUG_PRINT);
+	printf("%s non=%d\n", DEBUG_PRINT, token->non_ascii_offset);
+	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after) - token->non_ascii_offset+1) - output_width;
+	if (characters_to_cut > 0) {
+		for (int i = 1; i < characters_to_cut; i++) {
+			token->content[strlen(token->content)-1] = '\0';
 		}
 	}
 
-	char padding[(int)fmax(0, output_width - (strlen(before)+strlen(content)+strlen(after)))/2];
-	memset(padding, 32, sizeof(padding));
-
-	sprintf(cut_output, "%s%s%s%s", padding, before, content, after);
+	sprintf(cut_output, "%s%s%s", before, token->content, after);
 
 	return cut_output;
 }
@@ -168,12 +158,12 @@ char *generate_output() {
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) append_to_string(output, "\n");
 		else if (tokens[i].token == HEADING_1) {
-			char *fit_content =  cut_content_to_fit(tokens[i].content, "*- ", " -*", tokens[i].modifier);
+			char *fit_content =  cut_content_to_fit(&tokens[i], "*- ", " -*");
 			append_to_string(output, fit_content);
 			free(fit_content);
 		}
 		else if (tokens[i].token == HEADING_2) {
-			char *fit_content =  cut_content_to_fit(tokens[i].content, "**- ", " -**", tokens[i].modifier);
+			char *fit_content =  cut_content_to_fit(&tokens[i], "**- ", " -**");
 			append_to_string(output, fit_content);
 			free(fit_content);
 		}
@@ -189,6 +179,7 @@ char *generate_output() {
 		else if (tokens[i].token == DIVIDER) {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'
+			div[output_width] = '\0';
 			append_to_string(output, div);
 		}
 		else {
@@ -214,14 +205,10 @@ void dev_print_tokens() {
 		"NEW_LINE",
 		"END_FILE"
 	};
-	char *modifier_name[] = {
-		"DEFAULT",
-		"CENTER"
-	};
 	printf("[");
 	for (int i = 0; i < sizeof(tokens) / sizeof(TokenContent); i++) {
 		if (tokens[i].content == NULL) continue;
-		printf("[%s, %s, %s], \n", token_names[tokens[i].token], tokens[i].content, modifier_name[tokens[i].modifier]);
+		printf("[%s, %s], \n", token_names[tokens[i].token], tokens[i].content);
 	}
 	printf("]\n");
 }

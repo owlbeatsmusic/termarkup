@@ -1,11 +1,3 @@
-/*
-TODO:
- - fix "???" when using center modifier
- - divider strange characters at end of line
- - strange behaviour of "åäö"
- - 
-*/
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -268,16 +260,14 @@ int main(int argc, char *argv[]) {
 
 	generate_output();
 
-	if (output != NULL) {
-		printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, output);
-        	free((void*)output);
-    	} else {
+	if (output == NULL) {
         	printf("Error: Memory allocation failed\n");
-    	}
+    	} 
+	printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, output);
+        free((void*)output);
 
 	//printf("%s termarkup file outputted\n", DONE_PRINT);
 	if(non_ascii_found_boolean) printf("%s one or more non-ascii charcters were found and was removed\n", WARNING_PRINT);
-	free(output);	
 	return 0;
 }
 

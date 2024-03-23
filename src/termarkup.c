@@ -12,12 +12,12 @@ TODO:
 #include <math.h>
 
 #define MAX_TOKENS 512 // could probably estmate it better but works for now
+#define MAX_WIDTH 256
 
-#define MSG_PRINT   "[\033[0;33mtmpk\033[0m]:"
+#define DONE_PRINT   "[\033[0;32mdone\033[0m]:"
+#define WARNING_PRINT   "[\033[0;33mwarning\033[0m]:"
 #define ERROR_PRINT "[\033[0;31merror\033[0m]:"
 #define DEBUG_PRINT "[\033[0;35mdebug\033[0m]:"
-
-#define ASCII_TABLE " !”#$%&’()*+,-./0123456789:;≤>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 typedef enum {
 	HEADING_1,
@@ -36,21 +36,21 @@ typedef enum {
 typedef struct {
 	Token token;
 	char *content;
-	int non_ascii_offset; // because non ascii reads as two charcters.
 } TokenContent;
 
 TokenContent tokens[MAX_TOKENS];
 
-
+int non_ascii_found_boolean = 0;
 unsigned int output_width;
 unsigned int output_lines;
+unsigned int output_index = 0;
+char *output;
 
-void add_token(int *tokens_index, Token token, char *content, int non_ascii_offset) {
+void add_token(int *tokens_index, Token token, char *content) {
 	tokens[*tokens_index].token = token;
 	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
 	strcpy(tokens[*tokens_index].content, content);
 	tokens[*tokens_index].content[strlen(content)] = '\0';
-	tokens[*tokens_index].non_ascii_offset = non_ascii_offset;
 	*tokens_index += 1;
 	return;
 }
@@ -66,20 +66,24 @@ void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
 		Token temp_token = TEXT;
-		float temp_non_ascii_offset = 0;
 		if (str_compare_at_index(content, i, "\n")) {
-			add_token(&tokens_index, NEW_LINE, " ", 0);
+			add_token(&tokens_index, NEW_LINE, " ");
 			temp_token = NEW_LINE;
 		}
-		else if (str_compare_at_index(content, i, "*!") && content[i+2] != '!') {
+		else if (str_compare_at_index(content, i, "---")) {
+			add_token(&tokens_index, DIVIDER, " ");
+			temp_token = DIVIDER;
+			i += 2;
+		}
+		else if (str_compare_at_index(content, i, "*-") && content[i+2] != '-') {
 			temp_token = HEADING_1;
 			i += 2;		
 		} 
-		else if (str_compare_at_index(content, i, "*!!") && content[i+3] != '!') {
+		else if (str_compare_at_index(content, i, "**-") && content[i+3] != '-') {
 			temp_token = HEADING_2;
 			i += 3;	
 		}
-		else if (str_compare_at_index(content, i, "*!!!") && content[i+4] != '!') {
+		else if (str_compare_at_index(content, i, "***-") && content[i+4] != '-') {
 			temp_token = HEADING_3;
 			i += 4;
 		}
@@ -88,26 +92,25 @@ void tokenize(char *content, int file_size) {
 			i += 2;
 			
 		}
-		else if (str_compare_at_index(content, i, "---")) {
-			add_token(&tokens_index, DIVIDER, " ", 0);
-			temp_token = DIVIDER;
-			i += 2;
-		}
 		if (temp_token != NEW_LINE && temp_token != DIVIDER) {
-			char text_buffer[512];
+			char text_buffer[MAX_WIDTH];
 			memset(text_buffer, 0, sizeof(text_buffer));
+			
+			// create string content of a token
 			int j = 0;
-			if (content[i] == ' ') i++; 
 			while (content[i+j] != '\n') {
+				// TODO: non ascii handling
+				if (content[i+j] > 127 | content[i+j] < 0) { 
+					non_ascii_found_boolean = 1;
+					i++;
+					continue;
+				}
 				if (j > output_width) output_lines++;
 				text_buffer[j] = content[i+j];
-				if (text_buffer[j] > 127 | text_buffer[j] < 0) {
-					temp_non_ascii_offset += 0.5f;
-				}
 				j++;
 			}
 			text_buffer[strlen(text_buffer)] = '\0';
-			add_token(&tokens_index, temp_token, text_buffer, (int)temp_non_ascii_offset);
+			add_token(&tokens_index, temp_token, text_buffer);
 			i += strlen(text_buffer)-1;
 		}
 		//TODO: if ( token does not give a multiple line output)
@@ -115,7 +118,6 @@ void tokenize(char *content, int file_size) {
 	}
 }
 
-unsigned int output_index = 0;
 
 void append_to_string(char *dest, char *from) {
 	output_index += strlen(from);
@@ -124,58 +126,54 @@ void append_to_string(char *dest, char *from) {
 	return;
 }
 
-char *cut_content_to_fit(TokenContent *token, char *before, char *after) {
-	size_t cut_output_size = (strlen(token->content) + strlen(before) + strlen(after)) * sizeof(char);
+void cut_content_to_fit(TokenContent token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean) {
+	
+	size_t cut_output_size = (strlen(token.content) + strlen(before) + strlen(after)) * sizeof(char);
 	char *cut_output = malloc((char)cut_output_size);
 	memset(cut_output, 0, cut_output_size);
 	if (cut_output == NULL) {
 		printf("%s memory allocation for cut_output failed.\n", ERROR_PRINT);
-		return NULL;
+		return;
 	}
+	cut_output[0] = '\0';	
 	
-	cut_output[0] = '\0';
-	printf("%s non=%d\n", DEBUG_PRINT, token->non_ascii_offset);
-	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after) - token->non_ascii_offset+1) - output_width;
+	char *token_content_copy = (char*) malloc(strlen(token.content)*sizeof(char));
+	strcpy(token_content_copy, token.content);
+	int characters_to_cut = (strlen(before) + strlen(token.content) + strlen(after) + 1) - output_width;	
 	if (characters_to_cut > 0) {
-		for (int i = 1; i < characters_to_cut; i++) {
-			token->content[strlen(token->content)-1] = '\0';
+		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
+			token_content_copy[strlen(token_content_copy)-1] = '\0';
 		}
 	}
+	
+	sprintf(cut_output, "%s%s%s", before, token_content_copy, after);
+	append_to_string(output, cut_output);
+	free(token_content_copy);
+	
+	int lines = ceil(strlen(token.content)/(double)(strlen(token.content)-strlen(before)-strlen(after)));
+	if (multiple_lines_boolean == 0) lines = 0; 
+	printf("%s lines=%d content=%s\n", DEBUG_PRINT, lines, token.content);
+	for (int i = 0; i < lines; i++) {
+	
+	}
 
-	sprintf(cut_output, "%s%s%s", before, token->content, after);
-
-	return cut_output;
+	free(cut_output);
 }
 
-char *generate_output() {
-	char *output = malloc(sizeof(char) * output_width * output_lines);
+void generate_output() {
+	output = malloc(sizeof(char) * output_width * output_lines);
 	if (output == NULL) {
 		printf("%s memory allocation for output failed.\n", ERROR_PRINT);
-		return NULL;
+		return;
 	}
 	
 	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) append_to_string(output, "\n");
-		else if (tokens[i].token == HEADING_1) {
-			char *fit_content =  cut_content_to_fit(&tokens[i], "*- ", " -*");
-			append_to_string(output, fit_content);
-			free(fit_content);
-		}
-		else if (tokens[i].token == HEADING_2) {
-			char *fit_content =  cut_content_to_fit(&tokens[i], "**- ", " -**");
-			append_to_string(output, fit_content);
-			free(fit_content);
-		}
-		else if (tokens[i].token == HEADING_3) {
-			append_to_string(output, "***- ");
-			append_to_string(output, tokens[i].content);
-			append_to_string(output, " -***");
-		}
-		else if (tokens[i].token == SIDE_ARROW) {
-			append_to_string(output, "╰ ");
-			append_to_string(output, tokens[i].content);
-		}
+		else if (tokens[i].token == HEADING_1)  cut_content_to_fit(tokens[i], "*- ", " -*", 0, 1);
+		else if (tokens[i].token == HEADING_2)  cut_content_to_fit(tokens[i], "**- ", " -**", 0, 1);
+		else if (tokens[i].token == HEADING_3)  cut_content_to_fit(tokens[i], "***- ", " -***", 0, 1);
+		else if (tokens[i].token == SIDE_ARROW)	cut_content_to_fit(tokens[i], "╰", "", 2, 1); // 2 for "╰"
 		else if (tokens[i].token == DIVIDER) {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'
@@ -187,8 +185,8 @@ char *generate_output() {
 		}
 	}
 	output[output_index] = '\0';
-	return output;
 }
+
 
 void dev_print_tokens() {
 	// same order as defined in enum
@@ -212,6 +210,7 @@ void dev_print_tokens() {
 	}
 	printf("]\n");
 }
+
 
 int main(int argc, char *argv[]) {
 	if (argc < 4) {
@@ -259,12 +258,15 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(input_file);
 
+	//printf("%s file open and read succes\n", DONE_PRINT);
+	
 	tokenize(input_file_content, input_file_size);
 	free(input_file_content);
 	
-	dev_print_tokens();
+	//dev_print_tokens();
+	//printf("%s tokenizing finished\n", DONE_PRINT);
 
-	char *output = generate_output();
+	generate_output();
 
 	if (output != NULL) {
 		printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, output);
@@ -272,7 +274,10 @@ int main(int argc, char *argv[]) {
     	} else {
         	printf("Error: Memory allocation failed\n");
     	}
-	
+
+	//printf("%s termarkup file outputted\n", DONE_PRINT);
+	if(non_ascii_found_boolean) printf("%s one or more non-ascii charcters were found and was removed\n", WARNING_PRINT);
+	free(output);	
 	return 0;
 }
 

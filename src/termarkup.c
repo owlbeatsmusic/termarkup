@@ -54,6 +54,13 @@ int str_compare_at_index(char *content, int index, char* compare) {
 	return 1;
 }
 
+void str_append_to_output(char *string) {
+	output_index += strlen(string);
+	strncat(output, string, output_index);
+
+	return;
+}
+
 void tokenize(char *content, int file_size) {
 	int tokens_index = 0;
 	for (int i = 0; i < file_size; i++) {
@@ -110,17 +117,10 @@ void tokenize(char *content, int file_size) {
 	}
 }
 
-
-void str_append_to_output(char *string) {
-	output_index += strlen(string);
-	strncat(output, string, output_index);
-
-	return;
-}
-
-void cut_content_to_fit(TokenContent token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
+void format_token_to_fit(TokenContent token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
 	
 	char cut_output[(strlen(token.content) + strlen(before) + strlen(after))];
+	memset(cut_output, 0, strlen(cut_output));
 	cut_output[0] = '\0';	
 	
 	// cut content to fit in width
@@ -155,6 +155,7 @@ void cut_content_to_fit(TokenContent token, char *before, char *after, int non_a
 		lines = floor(strlen(token.content)/(double)(strlen(token_content_copy)-1));
 		printf("%s lines=%d\n", DEBUG_PRINT, lines);
 	}
+	/*
 	for (int i = 1; i < lines; i++) {
 		char before_padding[strlen(before)];
 		char after_padding[strlen(after)];	
@@ -165,9 +166,9 @@ void cut_content_to_fit(TokenContent token, char *before, char *after, int non_a
 		
 		str_append_to_output("\n");
 		token.content += output_width-strlen(before)-strlen(after);
-		cut_content_to_fit(token, before_padding, after_padding, 0, 0, 1);			
+		format_token_to_fit(token, before_padding, after_padding, 0, 0, 1);			
 	}
-
+	*/
 }
 
 void generate_output() {
@@ -180,20 +181,17 @@ void generate_output() {
 	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
-		else if (tokens[i].token == TEXT)  cut_content_to_fit(tokens[i], "", "", 0, 1, 0);
-		else if (tokens[i].token == HEADING_1)  cut_content_to_fit(tokens[i], "*- ", " -*", 0, 1, 0);
-		else if (tokens[i].token == HEADING_2)  cut_content_to_fit(tokens[i], "**- ", " -**", 0, 1, 0);
-		else if (tokens[i].token == HEADING_3)  cut_content_to_fit(tokens[i], "***- ", " -***", 0, 1, 0);
-		else if (tokens[i].token == SIDE_ARROW)	cut_content_to_fit(tokens[i], "╰", "", 2, 1, 0); // 2 for "╰"
+		else if (tokens[i].token == TEXT)  format_token_to_fit(tokens[i], "", "", 0, 1, 0);
+		else if (tokens[i].token == HEADING_1)  format_token_to_fit(tokens[i], "*- ", " -*", 0, 1, 0);
+		else if (tokens[i].token == HEADING_2)  format_token_to_fit(tokens[i], "**- ", " -**", 0, 1, 0);
+		else if (tokens[i].token == HEADING_3)  format_token_to_fit(tokens[i], "***- ", " -***", 0, 1, 0);
+		else if (tokens[i].token == SIDE_ARROW)	format_token_to_fit(tokens[i], "╰", "", 2, 1, 0); // 2 for "╰"
 		else if (tokens[i].token == DIVIDER) {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'
 			div[output_width] = '\0';
 			str_append_to_output(div);
 		}
-		//else {
-		//	str_append_to_output(tokens[i].content);
-		//}
 	}
 	output[output_index] = '\0';
 }
@@ -246,7 +244,7 @@ int main(int argc, char *argv[]) {
 	// reading the file
 	FILE *input_file = fopen(input_file_path, "r");
 	if (input_file == NULL) {
-		printf("%s could not open input file(%s)\n", ERROR_PRINT, input_file_path);
+		printf("%s failed to open input file(%s)\n", ERROR_PRINT, input_file_path);
 		return -1;
 	}
 	fseek(input_file, 0, SEEK_END);
@@ -278,14 +276,22 @@ int main(int argc, char *argv[]) {
 	//printf("%s tokenizing finished\n", DONE_PRINT);
 
 	generate_output();
-
+	printf("%s output generated\n", DONE_PRINT);
 	if (output == NULL) {
-        	printf("Error: Memory allocation failed\n");
+		printf("%s failed to allocate memory for \"output\" (generation failed)\n", ERROR_PRINT);
     	} 
-	printf("\n%s OUTPUT \n\n%s", DEBUG_PRINT, output);
-        free((void*)output);
+	printf("%s OUTPUT \n\n%s", DEBUG_PRINT, output);
+        FILE *output_file = fopen(output_file_path, "w");
+	if (input_file == NULL) {
+		printf("%s failed to open output file(%s)\n", ERROR_PRINT, output_file_path);
+		return -1;
+	}
+	output[strlen(output)] = '\0';
+	fprintf(output_file, "%s", output);
+	fclose(output_file);
+	free((void*)output);
 
-	//printf("%s termarkup file outputted\n", DONE_PRINT);
+	printf("%s termarkup file outputted (%s)\n", DONE_PRINT, output_file_path);
 	if(non_ascii_found_boolean) printf("%s one or more non-ascii charcters were found and was removed\n", WARNING_PRINT);
 	return 0;
 }

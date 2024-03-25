@@ -17,9 +17,9 @@ A "Terminal" Plain Text to Plain Text Markup Language.
 <td>
 <pre>
 <code>
-*!heading 1
-*!!heading 2
-*!!!heading 3
+*-heading 1
+**-heading 2
+***-heading 3
 ---
 +- sidearrow
 #$ callout example 2

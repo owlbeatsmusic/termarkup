@@ -6,10 +6,10 @@
 #define MAX_TOKENS 512 // could probably estmate it better but works for now
 #define MAX_WIDTH 256
 
-#define DONE_PRINT   "[\033[0;32mdone\033[0m]:"
+#define DONE_PRINT   	"[\033[0;32mdone\033[0m]:"
 #define WARNING_PRINT   "[\033[0;33mwarning\033[0m]:"
-#define ERROR_PRINT "[\033[0;31merror\033[0m]:"
-#define DEBUG_PRINT "[\033[0;35mdebug\033[0m]:"
+#define ERROR_PRINT 	"[\033[0;31merror\033[0m]:"
+#define DEBUG_PRINT	"[\033[0;35mdebug\033[0m]:"
 
 typedef enum {
 	HEADING_1,
@@ -111,9 +111,9 @@ void tokenize(char *content, int file_size) {
 }
 
 
-void append_to_string(char *dest, char *from) {
-	output_index += strlen(from);
-	strncat(dest, from, output_index);
+void str_append_to_output(char *string) {
+	output_index += strlen(string);
+	strncat(output, string, output_index);
 
 	return;
 }
@@ -123,6 +123,7 @@ void cut_content_to_fit(TokenContent token, char *before, char *after, int non_a
 	char cut_output[(strlen(token.content) + strlen(before) + strlen(after))];
 	cut_output[0] = '\0';	
 	
+	// cut content to fit in width
 	char token_content_copy[strlen(token.content)];
 	strcpy(token_content_copy, token.content);
 	int characters_to_cut = (strlen(before) + strlen(token.content) + strlen(after)+2) - output_width;	
@@ -132,6 +133,7 @@ void cut_content_to_fit(TokenContent token, char *before, char *after, int non_a
 		}
 	}
 	
+	// place "after" at the end of width if bool is true
 	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
 	char *full_width_padding = " ";
 	if (padding_size > 0 & fit_to_full_width == 1) {
@@ -143,14 +145,17 @@ void cut_content_to_fit(TokenContent token, char *before, char *after, int non_a
 		memset(full_width_padding, 32, padding_size*sizeof(char));
 	}
 	
-		
+	
 	sprintf(cut_output, "%s%s%s%s", before, token_content_copy, full_width_padding, after);
-	append_to_string(output, cut_output);
+	str_append_to_output(cut_output);
 
+	// recursion to add multiple lines if bool is true
 	int lines = 0;
-	if (multiple_lines_boolean == 1 & strlen(token_content_copy) != 0) lines = ceil(strlen(token.content)/(double)(strlen(token_content_copy)))-1;
-	printf("%s lines=%d\n", DEBUG_PRINT, lines);
-	for (int i = 0; i < lines; i++) {
+	if (multiple_lines_boolean == 1 & strlen(token_content_copy) != 0) {
+		lines = floor(strlen(token.content)/(double)(strlen(token_content_copy)-1));
+		printf("%s lines=%d\n", DEBUG_PRINT, lines);
+	}
+	for (int i = 1; i < lines; i++) {
 		char before_padding[strlen(before)];
 		char after_padding[strlen(after)];	
 		memset(before_padding, 32, strlen(before));	
@@ -158,7 +163,7 @@ void cut_content_to_fit(TokenContent token, char *before, char *after, int non_a
 		before_padding[strlen(before_padding)] = '\0';
 		after_padding[strlen(after_padding)] = '\0';
 		
-		append_to_string(output, "\n");
+		str_append_to_output("\n");
 		token.content += output_width-strlen(before)-strlen(after);
 		cut_content_to_fit(token, before_padding, after_padding, 0, 0, 1);			
 	}
@@ -174,7 +179,8 @@ void generate_output() {
 	
 	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].content == NULL) break;
-		if (tokens[i].token == NEW_LINE) append_to_string(output, "\n");
+		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
+		else if (tokens[i].token == TEXT)  cut_content_to_fit(tokens[i], "", "", 0, 1, 0);
 		else if (tokens[i].token == HEADING_1)  cut_content_to_fit(tokens[i], "*- ", " -*", 0, 1, 0);
 		else if (tokens[i].token == HEADING_2)  cut_content_to_fit(tokens[i], "**- ", " -**", 0, 1, 0);
 		else if (tokens[i].token == HEADING_3)  cut_content_to_fit(tokens[i], "***- ", " -***", 0, 1, 0);
@@ -183,11 +189,11 @@ void generate_output() {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'
 			div[output_width] = '\0';
-			append_to_string(output, div);
+			str_append_to_output(div);
 		}
-		else {
-			append_to_string(output, tokens[i].content);
-		}
+		//else {
+		//	str_append_to_output(tokens[i].content);
+		//}
 	}
 	output[output_index] = '\0';
 }

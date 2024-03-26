@@ -117,16 +117,16 @@ void tokenize(char *content, int file_size) {
 	}
 }
 
-void format_token_to_fit(TokenContent token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
+void format_token_to_fit(TokenContent *token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
 	
-	char cut_output[(strlen(token.content) + strlen(before) + strlen(after))];
+	char cut_output[(strlen(token->content) + strlen(before) + strlen(after))];
 	memset(cut_output, 0, strlen(cut_output));
 	cut_output[0] = '\0';	
 	
 	// cut content to fit in width
-	char token_content_copy[strlen(token.content)];
-	strcpy(token_content_copy, token.content);
-	int characters_to_cut = (strlen(before) + strlen(token.content) + strlen(after)+2) - output_width;	
+	char token_content_copy[strlen(token->content)];
+	strcpy(token_content_copy, token->content);
+	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
 	if (characters_to_cut > 0) {
 		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
@@ -152,23 +152,24 @@ void format_token_to_fit(TokenContent token, char *before, char *after, int non_
 	// recursion to add multiple lines if bool is true
 	int lines = 0;
 	if (multiple_lines_boolean == 1 & strlen(token_content_copy) != 0) {
-		lines = floor(strlen(token.content)/(double)(strlen(token_content_copy)-1));
-		printf("%s lines=%d\n", DEBUG_PRINT, lines);
+		lines = ceil(strlen(token->content)/(double)(strlen(token_content_copy)));
+		printf("%s lines=%d (=%lu/%lu) : %s\n", DEBUG_PRINT, lines, strlen(token->content), strlen(token_content_copy), token->content);
 	}
-	/*
 	for (int i = 1; i < lines; i++) {
-		char before_padding[strlen(before)];
-		char after_padding[strlen(after)];	
+		int before_padding_size = strlen(before);
+		int after_padding_size  = strlen(after);
+		char before_padding[before_padding_size];
+		char after_padding[after_padding_size];
 		memset(before_padding, 32, strlen(before));	
 		memset(after_padding, 32, strlen(after));
 		before_padding[strlen(before_padding)] = '\0';
 		after_padding[strlen(after_padding)] = '\0';
-		
 		str_append_to_output("\n");
-		token.content += output_width-strlen(before)-strlen(after);
-		format_token_to_fit(token, before_padding, after_padding, 0, 0, 1);			
+		token->content += output_width-strlen(before)-strlen(after);
+		printf("%s content=%s\n", DEBUG_PRINT, token->content);
+	
+		format_token_to_fit(token, before_padding, before_padding, 0, 0, 1);			
 	}
-	*/
 }
 
 void generate_output() {
@@ -181,11 +182,11 @@ void generate_output() {
 	for (int i = 0; i < MAX_TOKENS; i++) {
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
-		else if (tokens[i].token == TEXT)  format_token_to_fit(tokens[i], "", "", 0, 1, 0);
-		else if (tokens[i].token == HEADING_1)  format_token_to_fit(tokens[i], "*- ", " -*", 0, 1, 0);
-		else if (tokens[i].token == HEADING_2)  format_token_to_fit(tokens[i], "**- ", " -**", 0, 1, 0);
-		else if (tokens[i].token == HEADING_3)  format_token_to_fit(tokens[i], "***- ", " -***", 0, 1, 0);
-		else if (tokens[i].token == SIDE_ARROW)	format_token_to_fit(tokens[i], "╰", "", 2, 1, 0); // 2 for "╰"
+		else if (tokens[i].token == TEXT)  format_token_to_fit(&tokens[i], "", "", 0, 1, 0);
+		else if (tokens[i].token == HEADING_1)  format_token_to_fit(&tokens[i], "*- ", " -*", 0, 1, 0);
+		else if (tokens[i].token == HEADING_2)  format_token_to_fit(&tokens[i], "**- ", " -**", 0, 1, 0);
+		else if (tokens[i].token == HEADING_3)  format_token_to_fit(&tokens[i], "***- ", " -***", 0, 1, 0);
+		else if (tokens[i].token == SIDE_ARROW)	format_token_to_fit(&tokens[i], "╰", "", 2, 1, 0); // 2 for "╰"
 		else if (tokens[i].token == DIVIDER) {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'

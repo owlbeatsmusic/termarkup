@@ -132,10 +132,11 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
 		}
 	}
+	token_content_copy[strlen(token_content_copy)-1]= '\0';
 	
 	// place "after" at the end of width if bool is true
 	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
-	char *full_width_padding = " ";
+	char *full_width_padding = "";
 	if (padding_size > 0 & fit_to_full_width == 1) {
 		full_width_padding = (char*)malloc(padding_size*sizeof(char));
 		if (full_width_padding == NULL) {
@@ -153,7 +154,6 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	int lines = 0;
 	if (multiple_lines_boolean == 1 & strlen(token_content_copy) != 0) {
 		lines = ceil(strlen(token->content)/(double)(strlen(token_content_copy)));
-		printf("%s lines=%d (=%lu/%lu) : %s\n", DEBUG_PRINT, lines, strlen(token->content), strlen(token_content_copy), token->content);
 	}
 	for (int i = 1; i < lines; i++) {
 		int before_padding_size = strlen(before);
@@ -166,7 +166,6 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		after_padding[after_padding_size] = '\0';
 		str_append_to_output("\n");
 		token->content += output_width-strlen(before)-strlen(after);
-		printf("%s content=%s\n", DEBUG_PRINT, token->content);
 		
 		if (before_padding_size+after_padding_size == 0) format_token_to_fit(token, "", "", 0, 0, 1);
 		else if (before_padding_size == 0) format_token_to_fit(token, "", after_padding, 0, 0, 1);	

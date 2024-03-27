@@ -1,11 +1,14 @@
-*- heading1heading1*-   -*
-**- heading2heading2**-   -**
-***- heading3heading3head  -***
-     ing3headi                
+*- heading1heading -*
+                                 
+**- heading2heading -**
+                                  
+***- heading3heading3hea -***
+     ing3head                 
 ------------------------------
-12345678909abcedfghijklmnopqrs 
-tuvwxyz                       
+12345678909abcedfghijklmnopqr
+tuvwxy                        
 ------------------------------
-╰ sidearrow sidearrow sidearro 
-row                           
-#$ callout example 2 
+╰ sidearrow sidearrow sidearr
+ro                            
+#$ callout example 
+                              

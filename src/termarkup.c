@@ -160,15 +160,18 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		int after_padding_size  = strlen(after);
 		char before_padding[before_padding_size];
 		char after_padding[after_padding_size];
-		memset(before_padding, 32, strlen(before));	
-		memset(after_padding, 32, strlen(after));
-		before_padding[strlen(before_padding)] = '\0';
-		after_padding[strlen(after_padding)] = '\0';
+		memset(before_padding, 32, before_padding_size);	
+		memset(after_padding, 32, after_padding_size);
+		before_padding[before_padding_size] = '\0';
+		after_padding[after_padding_size] = '\0';
 		str_append_to_output("\n");
 		token->content += output_width-strlen(before)-strlen(after);
 		printf("%s content=%s\n", DEBUG_PRINT, token->content);
-	
-		format_token_to_fit(token, before_padding, before_padding, 0, 0, 1);			
+		
+		if (before_padding_size+after_padding_size == 0) format_token_to_fit(token, "", "", 0, 0, 1);
+		else if (before_padding_size == 0) format_token_to_fit(token, "", after_padding, 0, 0, 1);	
+		else if (after_padding_size == 0)  format_token_to_fit(token, before_padding, "", 0, 0, 1);
+		else format_token_to_fit(token, before_padding, after_padding, 0, 0, 1);
 	}
 }
 

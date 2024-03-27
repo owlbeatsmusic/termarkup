@@ -20,6 +20,7 @@ A "Terminal" Plain Text to Plain Text Markup Language.
 *-heading 1
 **-heading 2
 ***-heading 3
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 ---
 +- sidearrow
 #$ callout example 2
@@ -34,6 +35,8 @@ A "Terminal" Plain Text to Plain Text Markup Language.
 *- heading 1 -*
 **- heading 2 -**
 ***- heading 3 -***
+Lorem ipsum dolor sit amet, 
+consectetur adipiscing elit.
 ----------------------------
 ╰ sidearrow
 ┌–––┬––––––––––––––––––┒

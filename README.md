@@ -20,10 +20,10 @@ A "Terminal" Plain Text to Plain Text Markup Language.
 *-heading 1
 **-heading 2
 ***-heading 3
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Lorem ipsum dolor sit amet, consectetur.
 ---
 +- sidearrow
-#$ callout example 2
+#$ callout example 2. this is a test.
  <br>
  <br>
 </code>
@@ -36,11 +36,12 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 **- heading 2 -**
 ***- heading 3 -***
 Lorem ipsum dolor sit amet, 
-consectetur adipiscing elit.
+consectetur.
 ----------------------------
 ╰ sidearrow
 ┏---┳----------------------┓
-| $ | callout example      |
+| $ | callout example. thi |
+|   | s is a test.         | 
 ┗---┻----------------------┛
 </code>
 </pre>
@@ -50,7 +51,6 @@ consectetur adipiscing elit.
   </tbody>
 </table>
 
-> **⚠️ Currently not working properly but input and output should look something like this.**
 ## What & Why
 *A terminal can not display a markdown file correctly for obvious reasons*. What I have wanted for a while is a stylized file "format" made to make simple plain-text files a bit prettier. The main idea from the beginning being the callout (inspired by notions callouts) which would be a pain to create without this language. It was also important from the start to keep everything minimal and simple.
 

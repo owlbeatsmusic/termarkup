@@ -133,7 +133,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	char token_content_copy[strlen(token->content)];
 	strcpy(token_content_copy, token->content);
 	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
-	if (token->token == CALLOUT) characters_to_cut += 11;
+	if (token->token == CALLOUT) characters_to_cut += 11 - 6*(1-multiple_lines_boolean);
 	if (characters_to_cut > 0) {
 		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
@@ -180,8 +180,11 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		if (token->token == CALLOUT) {
 			token->content-=6;
 			token->content[0] = ' ';
+			
+			format_token_to_fit(token, before, after, 0, 0, 1);
+			continue;
 		}
-		
+			
 		// ugly hack but i fucking gave up ok		
 		if (before_padding_size+after_padding_size == 0) format_token_to_fit(token, "", "", 0, 0, 1);
 		else if (before_padding_size == 0) format_token_to_fit(token, "", after_padding, 0, 0, 1);	

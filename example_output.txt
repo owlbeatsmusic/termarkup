@@ -10,13 +10,13 @@ tuvwxyz
 row                           
 ┏---┳------------------------┓
 | $ | 12345678909abcedfghijk |
-    | lmnopqrstuvwxyz1        
-    | 8909abcedfghijkl        
-    | stuvwxyz12345678        
-    | edfghijklmnopqrs        
-    | z12345678909abce        
-    | klmnopqrstuvwxyz        
-    | 78909abcedfghijk        
-    | rstuvwxyz1234567        
-    | cedfghijklmnopqr        
+|   | lmnopqrstuvwxyz1234567 |
+|   | 8909abcedfghijklmnopqr |
+|   | stuvwxyz12345678909abc |
+|   | edfghijklmnopqrstuvwxy |
+|   | z12345678909abcedfghij |
+|   | klmnopqrstuvwxyz123456 |
+|   | 78909abcedfghijklmnopq |
+|   | rstuvwxyz12345678909ab |
+|   | cedfghijklmnopqrstuvwx |
 ┗---┻------------------------┛

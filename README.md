@@ -39,9 +39,9 @@ Lorem ipsum dolor sit amet,
 consectetur adipiscing elit.
 ----------------------------
 ╰ sidearrow
-┌–––┬––––––––––––––––––┒
-│ $ │ callout example  │
-└———┴————————––——––————┘
+┏---┳----------------------┓
+| $ | callout example      |
+┗---┻----------------------┛
 </code>
 </pre>
 </td>

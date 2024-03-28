@@ -91,6 +91,11 @@ void tokenize(char *content, int file_size) {
 			i += 2;
 			
 		}
+		else if (str_compare_at_index(content, i, "#")) {
+			temp_token = CALLOUT;
+			i += 1;
+			
+		}
 		if (temp_token != NEW_LINE && temp_token != DIVIDER) {
 			char text_buffer[MAX_WIDTH];
 			memset(text_buffer, 0, sizeof(text_buffer));
@@ -118,24 +123,27 @@ void tokenize(char *content, int file_size) {
 }
 
 void format_token_to_fit(TokenContent *token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
-	
-	char cut_output[(strlen(token->content) + strlen(before) + strlen(after))];
-	memset(cut_output, 0, strlen(cut_output));
+
+	int cut_output_size = strlen(token->content) + strlen(before) + strlen(after);
+	char cut_output[cut_output_size];
+	memset(cut_output, 0, cut_output_size);
 	cut_output[0] = '\0';	
 	
 	// cut content to fit in width
 	char token_content_copy[strlen(token->content)];
 	strcpy(token_content_copy, token->content);
 	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
+	if (token->token == CALLOUT) characters_to_cut += 11;
 	if (characters_to_cut > 0) {
 		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
 		}
 	}
-	token_content_copy[strlen(token_content_copy)-1]= '\0';
+	token_content_copy[strlen(token_content_copy)]= '\0';
 	
 	// place "after" at the end of width if bool is true
 	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
+	if (token->token == CALLOUT) padding_size -= 4;
 	char *full_width_padding = "";
 	if (padding_size > 0 & fit_to_full_width == 1) {
 		full_width_padding = (char*)malloc(padding_size*sizeof(char));
@@ -146,8 +154,10 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		memset(full_width_padding, 32, padding_size*sizeof(char));
 	}
 	
-	
-	sprintf(cut_output, "%s%s%s%s", before, token_content_copy, full_width_padding, after);
+	if (token->token == CALLOUT) 
+		sprintf(cut_output, "%s %c | %s%s%s", before, token->content[0], token_content_copy+1, full_width_padding, after);
+	else 
+		sprintf(cut_output, "%s%s%s%s", before, token_content_copy, full_width_padding, after);
 	str_append_to_output(cut_output);
 
 	// recursion to add multiple lines if bool is true
@@ -165,8 +175,14 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		before_padding[before_padding_size] = '\0';
 		after_padding[after_padding_size] = '\0';
 		str_append_to_output("\n");
-		token->content += output_width-strlen(before)-strlen(after);
 		
+		token->content += output_width-strlen(before)-strlen(after);
+		if (token->token == CALLOUT) {
+			token->content-=6;
+			token->content[0] = ' ';
+		}
+		
+		// ugly hack but i fucking gave up ok		
 		if (before_padding_size+after_padding_size == 0) format_token_to_fit(token, "", "", 0, 0, 1);
 		else if (before_padding_size == 0) format_token_to_fit(token, "", after_padding, 0, 0, 1);	
 		else if (after_padding_size == 0)  format_token_to_fit(token, before_padding, "", 0, 0, 1);
@@ -189,7 +205,24 @@ void generate_output() {
 		else if (tokens[i].token == HEADING_2)  format_token_to_fit(&tokens[i], "**- ", " -**", 0, 1, 0);
 		else if (tokens[i].token == HEADING_3)  format_token_to_fit(&tokens[i], "***- ", " -***", 0, 1, 0);
 		else if (tokens[i].token == SIDE_ARROW)	format_token_to_fit(&tokens[i], "╰", "", 2, 1, 0); // 2 for "╰"
-		else if (tokens[i].token == DIVIDER) {
+		else if (tokens[i].token == CALLOUT) {
+			char border[output_width];
+			
+			strcpy(border, "┏---┳");
+			memset(border+9, 45, output_width-6); // 45 = '-'
+			strcpy(border+strlen(border), "┓");
+			str_append_to_output(border);
+			str_append_to_output("\n");
+			
+			format_token_to_fit(&tokens[i], "|", "|", 6, 1, 1);
+			str_append_to_output("\n");
+
+			strcpy(border, "┗---┻");
+			memset(border+9, 45, output_width-6); // 45 = '-'
+			strcpy(border+strlen(border)-3, "┛");
+			str_append_to_output(border);
+		}
+			else if (tokens[i].token == DIVIDER) {
 			char div[output_width];
 			memset(div, 45, output_width); // 45 = '-'
 			div[output_width] = '\0';

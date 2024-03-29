@@ -39,6 +39,23 @@ unsigned int output_lines;
 unsigned int output_index = 0;
 char *output;
 
+// for customizing output with tags
+typedef struct {
+	char *before;
+	char *after;
+	size_t before_length;
+	size_t after_length;
+} Style;
+
+
+
+	{"*- ", " -*", 2, 2},
+	{"**- ", " -**", 2, 2},
+	{"***- ", " -***", 3, 3},
+	{"╰ ", "", 2, 0},
+	{"-", "", 1, 0},
+	{"-|┏┳┓┗┻┛", "", 8, 0},
+	{"", "", 0, 0}
 
 int str_compare_at_index(char *content, int index, char* compare) {
 	for (int i = 0; i < strlen(compare); i++) {
@@ -205,38 +222,22 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 }
 
 void generate_output() {
-	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main	
-	for (int i = 0; i < MAX_TOKENS; i++) {
+	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main
+
+	// same order as defined in enum (tokens)
+	Style styles[] = {
+	};
+	for (int i = 0; i < MAX_TOKENS - 1; i++) { // -1 for END_FILE
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
-		else if (tokens[i].token == TEXT)  format_token_to_fit(&tokens[i], "", "", 0, 1, 0);
-		else if (tokens[i].token == HEADING_1)  format_token_to_fit(&tokens[i], "*- \0", " -*\0", 0, 1, 0);
-		else if (tokens[i].token == HEADING_2)  format_token_to_fit(&tokens[i], "**- ", " -**", 0, 1, 0);
-		else if (tokens[i].token == HEADING_3)  format_token_to_fit(&tokens[i], "***- ", " -***", 0, 1, 0);
-		else if (tokens[i].token == SIDE_ARROW)	format_token_to_fit(&tokens[i], "╰ ", "", 2, 1, 0); // 2 for "╰"
-		else if (tokens[i].token == DIVIDER) {
-			char div[output_width];
-			memset(div, 45, output_width);
-			div[output_width] = '\0';
-			str_append_to_output(div);
-		}
-		else if (tokens[i].token == CALLOUT) {
-			char border[output_width];
-			
-			strcpy(border, "┏---┳");
-			memset(border+9, 45, output_width-6);
-			strcpy(border+strlen(border), "┓");
-			str_append_to_output(border);
-			str_append_to_output("\n");
-			
-			format_token_to_fit(&tokens[i], "|", "|", 6, 1, 1);
-			str_append_to_output("\n");
-
-			strcpy(border, "┗---┻");
-			memset(border+9, 45, output_width-6);
-			strcpy(border+strlen(border)-3, "┛");
-			str_append_to_output(border);
-		}
+		else if (tokens[i].token == CALLOUT) continue;
+		else format_token_to_fit(
+				&tokens[i], 
+				styles[tokens[i].token].before, 
+				styles[tokens[i].token].after, 
+				strlen(styles[tokens[i].token].before) - styles[tokens[i].token].before_length, 
+				1, 
+				0);
 	}
 	output[output_index] = '\0';
 }
@@ -347,9 +348,10 @@ int main(int argc, char *argv[]) {
     	} 
 	output[strlen(output)] = '\0';
 	fprintf(output_file, "%s", output);
+	printf("%s output:\n%s\n", DEBUG_PRINT, output);
 	fclose(output_file);
 	free((void*)output);
-
+	
 
 	// complete
 	printf("%s termarkup file outputted (%s)\n", DONE_PRINT, output_file_path);

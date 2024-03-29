@@ -23,7 +23,7 @@ A "Terminal" Plain Text to Plain Text Markup Language.
 Lorem ipsum dolor sit amet, consectetur.
 ---
 +- sidearrow
-#$callout example 2. this is a test.
+#$callout example. this is a test.
  <br>
  <br>
 </code>

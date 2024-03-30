@@ -43,19 +43,29 @@ char *output;
 typedef struct {
 	char *before;
 	char *after;
-	size_t before_length;
-	size_t after_length;
+	int before_length;
+	int after_length;
+	
+	char *sheet[8];
 } Style;
 
+Style h1_style = {"&= ", " =&", 2, 2, NULL};
+Style h2_style = {"&&= ", " =&&", 3, 3, NULL};
+Style h3_style = {"&&&= ", " =&&&", 4, 4, NULL};
+Style side_arrow_style = {"> ", "", 2, 0, NULL};
+Style divider_style = {"~", "", 1, 0, NULL};
+Style callout_style = {"", "", 0, 0, {"─", "#", "1", "2", "3", "4", "5", "6"}};
+Style text_style = {"", "", 0, 0, NULL};
+/*
+Style h1_style = {"*- ", " -*", 2, 2, NULL};
+Style h2_style = {"**- ", " -**", 3, 3, NULL};
+Style h3_style = {"***- ", " -***", 4, 4, NULL};
+Style side_arrow_style = {"╰ ", "", 2, 0, NULL};
+Style divider_style = {"-", "", 1, 0, NULL};
+Style callout_style = {"", "", 0, 0, {"-", "|", "┏", "┳", "┓", "┗", "┻", "┛"}};
+Style text_style = {"", "", 0, 0, NULL};
+*/
 
-
-	{"*- ", " -*", 2, 2},
-	{"**- ", " -**", 2, 2},
-	{"***- ", " -***", 3, 3},
-	{"╰ ", "", 2, 0},
-	{"-", "", 1, 0},
-	{"-|┏┳┓┗┻┛", "", 8, 0},
-	{"", "", 0, 0}
 
 int str_compare_at_index(char *content, int index, char* compare) {
 	for (int i = 0; i < strlen(compare); i++) {
@@ -78,6 +88,16 @@ void add_token(int *tokens_index, Token token, char *content) {
 	*tokens_index += 1;
 	return;
 }
+
+char *str_create_divider(int length, char *symbol) {
+	char *div = (char *)malloc(length * (strlen(symbol)) * sizeof(char));
+	for (int i = 0; i < length; i++) {
+		strcpy(div+(i*strlen(symbol)), symbol);
+	}
+	div[length * sizeof(symbol)] = '\0';
+	return div;	
+}
+
 
 void tokenize(char *content, int file_size) {
 	
@@ -183,7 +203,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	
 	// creating the final "line" and appending it tothe output
 	if (token->token == CALLOUT) 
-		sprintf(cut_output, "%s %c | %s%s%s", before, token->content[0], token_content_copy+1, full_width_padding, after);
+		sprintf(cut_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding, after);
 	else {
 		str_append_to_output(before); // because sprintf is weird
 		sprintf(cut_output, "%s%s%s", token_content_copy, full_width_padding, after);
@@ -196,8 +216,8 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	if (multiple_lines_boolean == 1 & strlen(token_content_copy) != 0) {
 		lines = ceil(strlen(token->content)/(double)(strlen(token_content_copy)));
 		if (token->token == CALLOUT) lines = ceil((strlen(token->content))/(double)(strlen(token_content_copy)-1));
-
 	}
+
 	for (int i = 1; i < lines; i++) {
 		char before_padding[strlen(before)];
 		char after_padding[strlen(after)];
@@ -226,11 +246,37 @@ void generate_output() {
 
 	// same order as defined in enum (tokens)
 	Style styles[] = {
+		h1_style,
+		h2_style,
+		h3_style,
+		side_arrow_style,
+		divider_style,
+		callout_style,
+		text_style
 	};
 	for (int i = 0; i < MAX_TOKENS - 1; i++) { // -1 for END_FILE
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
-		else if (tokens[i].token == CALLOUT) continue;
+		else if (tokens[i].token == DIVIDER) {
+			char *div = str_create_divider(output_width, divider_style.before);
+			str_append_to_output(div);
+			free(div);
+		}
+		else if (tokens[i].token == CALLOUT) {
+			
+			char *div = str_create_divider(output_width-6, callout_style.sheet[0]);
+			char border_output[output_width];
+			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[2], div+output_width-3*3*strlen(callout_style.sheet[0]), callout_style.sheet[3], div, callout_style.sheet[4], "\n");
+			str_append_to_output(border_output);	
+
+			format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, 1, 1);
+			str_append_to_output("\n");
+
+			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[5], div+output_width-3*3*strlen(callout_style.sheet[0]), callout_style.sheet[6], div, callout_style.sheet[7], "\n");
+			str_append_to_output(border_output);	
+			
+			free(div);
+		}
 		else format_token_to_fit(
 				&tokens[i], 
 				styles[tokens[i].token].before, 

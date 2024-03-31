@@ -48,7 +48,7 @@ typedef struct {
 	
 	char *sheet[8];
 } Style;
-
+/*
 Style h1_style = {"&= ", " =&", 2, 2, NULL};
 Style h2_style = {"&&= ", " =&&", 3, 3, NULL};
 Style h3_style = {"&&&= ", " =&&&", 4, 4, NULL};
@@ -56,15 +56,15 @@ Style side_arrow_style = {"> ", "", 2, 0, NULL};
 Style divider_style = {"~", "", 1, 0, NULL};
 Style callout_style = {"", "", 0, 0, {"─", "#", "1", "2", "3", "4", "5", "6"}};
 Style text_style = {"", "", 0, 0, NULL};
-/*
+*/
 Style h1_style = {"*- ", " -*", 2, 2, NULL};
 Style h2_style = {"**- ", " -**", 3, 3, NULL};
 Style h3_style = {"***- ", " -***", 4, 4, NULL};
-Style side_arrow_style = {"╰ ", "", 2, 0, NULL};
-Style divider_style = {"-", "", 1, 0, NULL};
-Style callout_style = {"", "", 0, 0, {"-", "|", "┏", "┳", "┓", "┗", "┻", "┛"}};
+Style side_arrow_style = {"┗ ", "", 2, 0, NULL};
+Style divider_style = {"━", "", 1, 0, NULL};
+Style callout_style = {"", "", 0, 0, {"━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"}};
 Style text_style = {"", "", 0, 0, NULL};
-*/
+
 
 
 int str_compare_at_index(char *content, int index, char* compare) {
@@ -80,6 +80,23 @@ void str_append_to_output(char *string) {
 	return;
 }
 
+char *str_create_divider(int length, char *symbol) {
+	//char *div = (char *)malloc((length) * (strlen(symbol)) * sizeof(char));
+	char *div = (char *)malloc((length) * (strlen(symbol)) * sizeof(char));
+	if (div == NULL) {
+		printf("%s failed to allocate memory for \"div\"\n", ERROR_PRINT);
+		return NULL;
+	}
+	memset(div, 0, (length) * (strlen(symbol)));
+	for (int i = 0; i < length; i++) {
+		printf("%s i=%d   strlen(symbol)=%lu   length=%d   sizeof(div)/c=%lu\n", DEBUG_PRINT, i, strlen(symbol), length, strlen(div));
+		printf("%s div=%s\n", DEBUG_PRINT, div);
+		strcpy(div+(i*strlen(symbol)), symbol);
+	}
+	div[length * strlen(symbol)] = '\0';
+	return div;	
+}
+
 void add_token(int *tokens_index, Token token, char *content) {
 	tokens[*tokens_index].token = token;
 	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
@@ -88,16 +105,6 @@ void add_token(int *tokens_index, Token token, char *content) {
 	*tokens_index += 1;
 	return;
 }
-
-char *str_create_divider(int length, char *symbol) {
-	char *div = (char *)malloc(length * (strlen(symbol)) * sizeof(char));
-	for (int i = 0; i < length; i++) {
-		strcpy(div+(i*strlen(symbol)), symbol);
-	}
-	div[length * sizeof(symbol)] = '\0';
-	return div;	
-}
-
 
 void tokenize(char *content, int file_size) {
 	
@@ -178,7 +185,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	strcpy(token_content_copy, token->content);
 
 	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
-	if (token->token == CALLOUT) characters_to_cut += 11 - 6*(1-multiple_lines_boolean);
+	if (token->token == CALLOUT) characters_to_cut += (11-2*(strlen(callout_style.sheet[1])-1)) - 6*(1-multiple_lines_boolean);
 	if (multiple_lines_boolean == 0) characters_to_cut += non_ascii_offset;
 	if (characters_to_cut > 0) {
 		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
@@ -189,7 +196,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 
 	// place "after" at the end of width if bool is true
 	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
-	if (token->token == CALLOUT) padding_size -= 4;
+	if (token->token == CALLOUT) padding_size -= 4 - 2 * (strlen(callout_style.sheet[1])-1);
 	char *full_width_padding = "";
 	if (padding_size > 0 & fit_to_full_width == 1) {
 		full_width_padding = (char*)malloc(padding_size*sizeof(char));
@@ -227,7 +234,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		
 		token->content += output_width-strlen(before)-strlen(after)+non_ascii_offset;
 		if (token->token == CALLOUT) {
-			token->content-=12;
+			token->content-=12 - 2 * (strlen(callout_style.sheet[1]) - 1);
 			token->content[0] = ' ';	
 			format_token_to_fit(token, before, after, 0, 0, 1);
 			continue;
@@ -265,17 +272,24 @@ void generate_output() {
 		else if (tokens[i].token == CALLOUT) {
 			
 			char *div = str_create_divider(output_width-6, callout_style.sheet[0]);
+			char *short_div = str_create_divider(3, callout_style.sheet[0]);
+
+			// above calloiut
 			char border_output[output_width];
-			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[2], div+output_width-3*3*strlen(callout_style.sheet[0]), callout_style.sheet[3], div, callout_style.sheet[4], "\n");
+			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[2], short_div, callout_style.sheet[3], div, callout_style.sheet[4], "\n");
 			str_append_to_output(border_output);	
 
+			// main part
 			format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, 1, 1);
 			str_append_to_output("\n");
 
-			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[5], div+output_width-3*3*strlen(callout_style.sheet[0]), callout_style.sheet[6], div, callout_style.sheet[7], "\n");
+			// under
+			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[5], short_div, callout_style.sheet[6], div, callout_style.sheet[7], "\n");
 			str_append_to_output(border_output);	
 			
+
 			free(div);
+			free(short_div);
 		}
 		else format_token_to_fit(
 				&tokens[i], 

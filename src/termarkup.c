@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <math.h>
 
+#define MAX_THEME_KEY_SIZE 64
+#define MAX_THEME_VALUE_SIZE 256
+#define MAX_THEME_KEY_VALUE_PAIRS 32
 #define MAX_TOKENS 512 // could probably estmate it better but works for now
 #define MAX_WIDTH 512
 #define MIN_WIDTH 10
@@ -11,6 +14,11 @@
 #define ERROR_PRINT   "[\033[0;31merror\033[0m]:"
 #define DEBUG_PRINT   "[\033[0;35mdebug\033[0m]:"
 #define DONE_PRINT    "[\033[0;32mdone\033[0m]:"
+
+
+
+
+// tokenizing & output
 
 typedef enum {
 	HEADING_1,
@@ -39,7 +47,18 @@ unsigned int output_lines;
 unsigned int output_index = 0;
 char *output;
 
-// for customizing output with tags
+
+
+
+// themes & styles
+
+typedef struct {
+	char *key;
+	char *value;
+} ThemeKeyValue;
+
+ThemeKeyValue theme_key_value_pairs[MAX_THEME_KEY_VALUE_PAIRS];
+
 typedef struct {
 	char *before;
 	char *after;
@@ -48,15 +67,15 @@ typedef struct {
 	
 	char *sheet[8];
 } Style;
-/*
-Style h1_style = {"&= ", " =&", 2, 2, NULL};
-Style h2_style = {"&&= ", " =&&", 3, 3, NULL};
-Style h3_style = {"&&&= ", " =&&&", 4, 4, NULL};
+
+Style h1_style = {"&= ", " =&", 3, 3, NULL};
+Style h2_style = {"&&= ", " =&&", 4, 4, NULL};
+Style h3_style = {"&&&= ", " =&&&", 5, 5, NULL};
 Style side_arrow_style = {"> ", "", 2, 0, NULL};
 Style divider_style = {"~", "", 1, 0, NULL};
-Style callout_style = {"", "", 0, 0, {"─", "#", "1", "2", "3", "4", "5", "6"}};
+Style callout_style = {"", "", 0, 0, {"-", "|", ".", ".", ".", "'", "'", "'"}};
 Style text_style = {"", "", 0, 0, NULL};
-*/
+/*
 Style h1_style = {"*- ", " -*", 2, 2, NULL};
 Style h2_style = {"**- ", " -**", 3, 3, NULL};
 Style h3_style = {"***- ", " -***", 4, 4, NULL};
@@ -64,7 +83,7 @@ Style side_arrow_style = {"┗ ", "", 2, 0, NULL};
 Style divider_style = {"━", "", 1, 0, NULL};
 Style callout_style = {"", "", 0, 0, {"━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"}};
 Style text_style = {"", "", 0, 0, NULL};
-
+*/
 
 
 int str_compare_at_index(char *content, int index, char* compare) {
@@ -89,13 +108,16 @@ char *str_create_divider(int length, char *symbol) {
 	}
 	memset(div, 0, (length) * (strlen(symbol)));
 	for (int i = 0; i < length; i++) {
-		printf("%s i=%d   strlen(symbol)=%lu   length=%d   sizeof(div)/c=%lu\n", DEBUG_PRINT, i, strlen(symbol), length, strlen(div));
-		printf("%s div=%s\n", DEBUG_PRINT, div);
 		strcpy(div+(i*strlen(symbol)), symbol);
 	}
 	div[length * strlen(symbol)] = '\0';
 	return div;	
 }
+
+
+
+
+// tokenizer
 
 void add_token(int *tokens_index, Token token, char *content) {
 	tokens[*tokens_index].token = token;
@@ -106,10 +128,10 @@ void add_token(int *tokens_index, Token token, char *content) {
 	return;
 }
 
-void tokenize(char *content, int file_size) {
-	
+void tokenize(char *content) {
+
 	int tokens_index = 0;
-	for (int i = 0; i < file_size; i++) {
+	for (int i = 0; i < strlen(content); i++) {
 		
 		Token temp_token = TEXT;
 		if (str_compare_at_index(content, i, "\n")) {
@@ -170,6 +192,10 @@ void tokenize(char *content, int file_size) {
 		output_lines++;	
 	}
 }
+
+
+
+// output generation
 
 void format_token_to_fit(TokenContent *token, char *before, char *after, int non_ascii_offset, int multiple_lines_boolean, int fit_to_full_width) {
 
@@ -303,6 +329,10 @@ void generate_output() {
 }
 
 
+
+
+// development functions
+
 void dev_print_tokens() {
 	// same order as defined in enum
 	char *token_names[] = {
@@ -327,25 +357,101 @@ void dev_print_tokens() {
 }
 
 
+
+
+// themes
+
+void set_theme(char *content) {
+
+	int line = 0;
+	int start_of_line_index = 0;
+	int equal_sign_index = 0;
+	int first_equal_sign_bool = 0;
+
+	for (int i = 0; i < strlen(content); i++) {
+		if (content[i] == '=' & first_equal_sign_bool == 0) {
+			first_equal_sign_bool = 1;	
+			equal_sign_index = i;
+		}
+		if (content[i] == '\n' & first_equal_sign_bool == 1) {
+
+			char key[MAX_THEME_KEY_SIZE];
+			strncpy(key, content + start_of_line_index, equal_sign_index - start_of_line_index);
+			
+			int j = 0;
+			while (key[j] != 32) j++; // space before key
+
+			// TODO : move string back to remove whitespace
+
+
+			char value[MAX_THEME_VALUE_SIZE];
+			strncpy(value, content + equal_sign_index+1, i-equal_sign_index-1);
+			
+			ThemeKeyValue tkv = {key, value};
+			theme_key_value_pairs[line] = tkv;	
+
+			line++;
+			equal_sign_index = 0;
+			first_equal_sign_bool = 0;
+			if (i+1 < strlen(content)) start_of_line_index =  i+1;
+		}
+	}
+}
+
+
+
+
+// main & cli
+
+char *file_to_string(char *file_path) {
+	FILE *file = fopen(file_path, "r");
+	if (file == NULL) {
+		printf("%s failed to open file(%s)\n", ERROR_PRINT, file_path);
+		return NULL;
+	}
+	fseek(file, 0, SEEK_END);
+	size_t file_size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	char *file_content = (char *)malloc(file_size + 1);
+	if (file_content == NULL) {
+		fclose(file);
+		printf("%s failed to allocate memory for contents of \"%s\"\n", ERROR_PRINT, file_path);
+		return NULL;
+	}
+	file_content[file_size] = '\0';
+
+	size_t file_read_size = fread(file_content, 1, file_size, file);
+	if (file_read_size != file_size) {
+		free(file_content);
+		fclose(file);
+		printf("%s failed to read file (%s)\n", ERROR_PRINT, file_path);
+		return NULL;
+	}
+	fclose(file);
+	return file_content;
+}
+
 int main(int argc, char *argv[]) {
 	
 	// cli
+	if (argc < 4 | argc == 0) {
+		printf("\n\x1B[2m\t    string       string        int           string\x1B[0m\n");
+		printf("./termarkup [input_file] [output_file] [file_width] ([theme_file])\n\n");
+		return 0;
+	}
 	if (!strcmp(argv[1], "-version")) {
 		printf("termarkup v1.0 by owlbeatsmusic\n");
 		return 0;
 	}
-	if (argc < 4) {
-		printf("\n\x1B[2m\t            string       string        int\x1B[0m\n");
-		printf("\t./termarkup [input_file] [output_file] [file_width]\n\n");
-		return 0;
-	}
 	else if (!strcmp(argv[1], "-help")) {
-		printf("\n\x1B[2m\t            string       string        int\x1B[0m\n");
-		printf("\t./termarkup [input_file] [output_file] [file_width]\n\n");
+		printf("\n\x1B[2m\t    string       string        int           string\x1B[0m\n");
+		printf("./termarkup [input_file] [output_file] [file_width] ([theme_file])\n\n");
 		return 0;
 	}
 	char *input_file_path  = argv[1];
 	char *output_file_path = argv[2];
+	char *theme_file_path  = argv[4];
 	
 	if (sscanf(argv[3], "%d", &output_width) != 1) {
 		printf("%s could not convert third argument to int (use -help)\n", ERROR_PRINT);
@@ -363,44 +469,27 @@ int main(int argc, char *argv[]) {
 
 
 	// reading the input file
-	FILE *input_file = fopen(input_file_path, "r");
-	if (input_file == NULL) {
-		printf("%s failed to open input file(%s)\n", ERROR_PRINT, input_file_path);
-		return -1;
-	}
-	fseek(input_file, 0, SEEK_END);
-	size_t input_file_size = ftell(input_file);
-	fseek(input_file, 0, SEEK_SET);
-
-	char *input_file_content = (char *)malloc(input_file_size + 1);
-	if (input_file_content == NULL) {
-		fclose(input_file);
-		printf("%s failed to allocate memory for \"input_file_content\"\n", ERROR_PRINT);
-		return -1;
-	}
-	input_file_content[input_file_size] = '\0';
-
-	size_t input_file_read_size = fread(input_file_content, 1, input_file_size, input_file);
-	if (input_file_read_size != input_file_size) {
-		free(input_file_content);
-		fclose(input_file);
-		printf("%s failed to read input file", ERROR_PRINT);
-		return -1;
-	}
-	fclose(input_file);
 
 	// open output file before starting
         FILE *output_file = fopen(output_file_path, "w");
-	if (input_file == NULL) {
+	if (output_file == NULL) {
 		printf("%s failed to open output file(%s)\n", ERROR_PRINT, output_file_path);
 		return -1;
 	}
 
+	// open theme and set token-styles to theme
+	char *theme_file_content = file_to_string(theme_file_path);
+	if (theme_file_content == NULL) return -1;
+	set_theme(theme_file_content);	
+	free(theme_file_content);
 
-	// start
-	tokenize(input_file_content, input_file_size);
+	// read input file and tokenize
+	char *input_file_content = file_to_string(input_file_path); 
+	if (input_file_content == NULL) return -1;
+	tokenize(input_file_content);
 	free(input_file_content);
 
+	// generate output and create finish up
 	generate_output();
 	if (output == NULL) {
 		printf("%s failed to allocate memory for \"output\" (generation failed)\n", ERROR_PRINT);

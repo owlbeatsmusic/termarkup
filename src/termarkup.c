@@ -53,13 +53,6 @@ char *output;
 // themes & styles
 
 typedef struct {
-	char *key;
-	char *value;
-} ThemeKeyValue;
-
-ThemeKeyValue theme_key_value_pairs[MAX_THEME_KEY_VALUE_PAIRS];
-
-typedef struct {
 	char *before;
 	char *after;
 	int before_length;
@@ -68,6 +61,7 @@ typedef struct {
 	char *sheet[8];
 } Style;
 
+Style *styles[7];
 Style h1_style = {"&= ", " =&", 3, 3, NULL};
 Style h2_style = {"&&= ", " =&&", 4, 4, NULL};
 Style h3_style = {"&&&= ", " =&&&", 5, 5, NULL};
@@ -278,15 +272,7 @@ void generate_output() {
 	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main
 
 	// same order as defined in enum (tokens)
-	Style styles[] = {
-		h1_style,
-		h2_style,
-		h3_style,
-		side_arrow_style,
-		divider_style,
-		callout_style,
-		text_style
-	};
+	
 	for (int i = 0; i < MAX_TOKENS - 1; i++) { // -1 for END_FILE
 		if (tokens[i].content == NULL) break;
 		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
@@ -319,9 +305,9 @@ void generate_output() {
 		}
 		else format_token_to_fit(
 				&tokens[i], 
-				styles[tokens[i].token].before, 
-				styles[tokens[i].token].after, 
-				strlen(styles[tokens[i].token].before) - styles[tokens[i].token].before_length, 
+				styles[tokens[i].token]->before, 
+				styles[tokens[i].token]->after, 
+				strlen(styles[tokens[i].token]->before) - styles[tokens[i].token]->before_length, 
 				1, 
 				0);
 	}
@@ -361,6 +347,68 @@ void dev_print_tokens() {
 
 // themes
 
+void set_token_style(Token token, char *value) {
+	
+	int quotation_indicies[32];
+	int j = 0;
+	for (int i = 0; i < strlen(value); i++) {
+		if (value[i] == '"') {
+			quotation_indicies[j] = i;
+			j++;
+		}
+	}
+	if (token == DIVIDER) {
+
+	}
+	else if (token == CALLOUT) {
+
+	}
+	else {
+		if (j > 4) printf("%s unexpected quotation mark in theme file\n", WARNING_PRINT);
+		if (j < 4) printf("%s missing quotation mark in theme file\n", WARNING_PRINT);
+		//printf("%s value=\'%s\' ind[0]=%d  ind[1]=%d\n", DEBUG_PRINT, value, quotation_indicies[0], quotation_indicies[1]);
+		// before
+		char *before = (char*)malloc(16 * sizeof(char));
+		strncpy(before, value + quotation_indicies[0]+1, quotation_indicies[1]-quotation_indicies[0]-1);		
+		before[quotation_indicies[1]-quotation_indicies[0]] = '\0';
+		styles[token]->before = before;
+		
+		// after
+		char *after = (char*)malloc(16 * sizeof(char));
+		strncpy(after, value + quotation_indicies[2]+1, quotation_indicies[3]-quotation_indicies[2]-1);		
+		after[quotation_indicies[3]-quotation_indicies[2]] = '\0';
+		styles[token]->after = after;
+	
+		// before size
+		int first_int_start_index = 0;
+		for (int i = quotation_indicies[3]; i < strlen(value); i++) {
+			if (value[i] == ',') {
+				first_int_start_index = i+1;
+				break;
+			}
+		}
+		char before_length[32];
+		int k = 0;
+		while (value[first_int_start_index + k] != ',') {
+			// TODO: handle what happens if no other comma
+			before_length[k] = value[first_int_start_index + k];
+			k++;	
+		}
+		k++;
+		styles[token]->before_length = atoi(before_length);	
+
+		char after_length[32];
+		int l = 0;
+		while (value[first_int_start_index + k + l] != ']') {
+			// TODO: handle what happens if no end bracket
+			after_length[l] = value[first_int_start_index + k + l];
+			l++;	
+		}	
+		styles[token]->after_length = atoi(after_length);	
+			
+	}
+}
+
 void set_theme(char *content) {
 
 	int line = 0;
@@ -376,24 +424,35 @@ void set_theme(char *content) {
 		if (content[i] == '\n' & first_equal_sign_bool == 1) {
 
 			char key[MAX_THEME_KEY_SIZE];
+			memset(key, 0, MAX_THEME_KEY_SIZE);
 			strncpy(key, content + start_of_line_index, equal_sign_index - start_of_line_index);
-			
+
+			// remove whitespace before key
 			int j = 0;
-			while (key[j] != 32) j++; // space before key
-
-			// TODO : move string back to remove whitespace
-
+			while (key[j] == 32) j++;
+			for (int k = 0; k < strlen(key)-j; k++) {
+				key[k] = key[k+j];
+			}
+			key[strlen(key)-j] = '\0';
 
 			char value[MAX_THEME_VALUE_SIZE];
 			strncpy(value, content + equal_sign_index+1, i-equal_sign_index-1);
 			
-			ThemeKeyValue tkv = {key, value};
-			theme_key_value_pairs[line] = tkv;	
-
+			Token temp_token;
+			if (str_compare_at_index(key, 0, "heading_1")) set_token_style(HEADING_1, value);
+			if (str_compare_at_index(key, 0, "heading_2")) temp_token = HEADING_2;
+			if (str_compare_at_index(key, 0, "heading_3")) temp_token = HEADING_3;
+			if (str_compare_at_index(key, 0, "sidearrow")) temp_token = SIDE_ARROW;
+			if (str_compare_at_index(key, 0, "divider")) temp_token = DIVIDER;
+			if (str_compare_at_index(key, 0, "callout")) temp_token = CALLOUT;
+			
 			line++;
 			equal_sign_index = 0;
 			first_equal_sign_bool = 0;
 			if (i+1 < strlen(content)) start_of_line_index =  i+1;
+		}
+		else if (content[i] == '\n') {
+			start_of_line_index = i+1;
 		}
 	}
 }
@@ -451,7 +510,8 @@ int main(int argc, char *argv[]) {
 	}
 	char *input_file_path  = argv[1];
 	char *output_file_path = argv[2];
-	char *theme_file_path  = argv[4];
+	char *theme_file_path;
+	if (argc > 3) theme_file_path  = argv[4];
 	
 	if (sscanf(argv[3], "%d", &output_width) != 1) {
 		printf("%s could not convert third argument to int (use -help)\n", ERROR_PRINT);
@@ -478,14 +538,29 @@ int main(int argc, char *argv[]) {
 	}
 
 	// open theme and set token-styles to theme
-	char *theme_file_content = file_to_string(theme_file_path);
-	if (theme_file_content == NULL) return -1;
-	set_theme(theme_file_content);	
-	free(theme_file_content);
+	// TODO: fix this ugly mess
+	styles[0] = &h1_style;
+	styles[1] = &h2_style;
+	styles[2] = &h3_style;
+	styles[3] = &side_arrow_style;
+	styles[4] = &divider_style;
+	styles[5] = &callout_style;
+	styles[6] = &text_style;
+	if (theme_file_path != NULL) { 
+		printf("%s STYLE\n", DEBUG_PRINT);
+		char *theme_file_content = file_to_string(theme_file_path);
+		if (theme_file_content == NULL) {
+			return -1;
+		}
+		set_theme(theme_file_content);	
+		free(theme_file_content);
+	}
 
 	// read input file and tokenize
 	char *input_file_content = file_to_string(input_file_path); 
-	if (input_file_content == NULL) return -1;
+	if (input_file_content == NULL) {
+		return -1;
+	}
 	tokenize(input_file_content);
 	free(input_file_content);
 
@@ -500,7 +575,14 @@ int main(int argc, char *argv[]) {
 	printf("%s output:\n%s\n", DEBUG_PRINT, output);
 	fclose(output_file);
 	free((void*)output);
-	
+
+	if (theme_file_path != NULL) {
+		for (int i = 0; i < sizeof(styles)/sizeof(styles[0]); i++) {
+			//free(styles[i]->before);
+			//free(styles[i]->after);
+		}
+	}
+
 
 	// complete
 	printf("%s termarkup file outputted (%s)\n", DONE_PRINT, output_file_path);

@@ -1,0 +1,36 @@
+*━ heading1heading1 -*
+**- heading2heading2 -**
+***- heading3heading3head -***
+     ing3heading3heading3     
+     heading3heading3head     
+     ing3heading3heading3     
+     heading3heading3head     
+     ing3heading3heading3     
+──────────────────────────────
+12345678909abcedfghijklmnopqrs
+tuvwxyz                       
+──────────────────────────────
+╰ sidearrow sidearrow sidearro
+  w3 sidearrow4 sidearrow side
+  arrow sidearrow sidearrow si
+  dearrow sidearrow sidearrow 
+  sidearrow sidearrow sidearro
+  w sidearrow sidearrow sidear
+  row sidearrow sidearrow side
+  arrow sidearrow sidearrow si
+  dearrow sidearrow sidearrow 
+  sidearrow sidearrow         
+┏---┳------------------------┓
+| $ | 12345678909,abcedfghij |
+|   | klmnopqrstuvwxyz123456 |
+|   | 78909abcedfghijklmnopq |
+|   | rstuvwxyz12345678909ab |
+|   | cedfghijklmnopqrstuvwx |
+|   | yz12345678909abcedfghi |
+|   | jklmnopqrstuvwxyz12345 |
+|   | 678909abcedfghijklmnop |
+|   | qrstuvwxyz12345678909a |
+|   | bcedfghijklmnopqrstuvW |
+|   | xyz.                   |
+┗---┻------------------------┛
+

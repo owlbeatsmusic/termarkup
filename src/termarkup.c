@@ -292,7 +292,7 @@ void generate_output() {
 			char *short_div = str_create_divider(3, callout_style.sheet[0]);
 
 			// above calloiut
-			char border_output[output_width];
+			char border_output[output_width*strlen(callout_style.sheet[0])];
 			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[2], short_div, callout_style.sheet[3], div, callout_style.sheet[4], "\n");
 			str_append_to_output(border_output);	
 
@@ -380,9 +380,6 @@ void set_token_style(Token token, char *value) {
 		}
 	}
 	else {
-		if (j > 4) printf("%s unexpected quotation mark in theme file\n", WARNING_PRINT);
-		if (j < 4) printf("%s missing quotation mark in theme file\n", WARNING_PRINT);
-		
 		styles[token]->before = get_string_between_quotations(value, quotation_indicies, 0, 1);
 		styles[token]->after = get_string_between_quotations(value, quotation_indicies, 2, 3);
 	
@@ -450,7 +447,7 @@ void set_theme(char *content) {
 			if (str_compare_at_index(key, 0, "heading_1")) set_token_style(HEADING_1, value);
 			if (str_compare_at_index(key, 0, "heading_2")) set_token_style(HEADING_2, value);
 			if (str_compare_at_index(key, 0, "heading_3")) set_token_style(HEADING_3, value);
-			if (str_compare_at_index(key, 0, "sidearrow")) set_token_style(SIDE_ARROW, value);
+			if (str_compare_at_index(key, 0, "side_arrow")) set_token_style(SIDE_ARROW, value);
 			if (str_compare_at_index(key, 0, "divider")) set_token_style(DIVIDER, value);
 			if (str_compare_at_index(key, 0, "callout")) set_token_style(CALLOUT, value);
 			

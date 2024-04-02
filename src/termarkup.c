@@ -53,6 +53,7 @@ char *output;
 // themes & styles
 
 typedef struct {
+	Token token;
 	char *before;
 	char *after;
 	int before_length;
@@ -62,13 +63,13 @@ typedef struct {
 } Style;
 
 Style *styles[7];
-Style h1_style = {"&= ", " =&", 3, 3, NULL};
-Style h2_style = {"&&= ", " =&&", 4, 4, NULL};
-Style h3_style = {"&&&= ", " =&&&", 5, 5, NULL};
-Style side_arrow_style = {"> ", "", 2, 0, NULL};
-Style divider_style = {"~", "", 1, 0, NULL};
-Style callout_style = {"", "", 0, 0, {"-", "|", ".", ".", ".", "'", "'", "'"}};
-Style text_style = {"", "", 0, 0, NULL};
+Style h1_style = {HEADING_1, "&= ", " =&", 3, 3, NULL};
+Style h2_style = {HEADING_2, "&&= ", " =&&", 4, 4, NULL};
+Style h3_style = {HEADING_3, "&&&= ", " =&&&", 5, 5, NULL};
+Style side_arrow_style = {SIDE_ARROW, "> ", "", 2, 0, NULL};
+Style divider_style = {DIVIDER, "~", "", 1, 0, NULL};
+Style callout_style = {CALLOUT, "", "", 0, 0, {"-", "|", ".", ".", ".", "'", "'", "'"}};
+Style text_style = {TEXT, "", "", 0, 0, NULL};
 /*
 Style h1_style = {"*- ", " -*", 2, 2, NULL};
 Style h2_style = {"**- ", " -**", 3, 3, NULL};
@@ -94,7 +95,6 @@ void str_append_to_output(char *string) {
 }
 
 char *str_create_divider(int length, char *symbol) {
-	//char *div = (char *)malloc((length) * (strlen(symbol)) * sizeof(char));
 	char *div = (char *)malloc((length) * (strlen(symbol)) * sizeof(char));
 	if (div == NULL) {
 		printf("%s failed to allocate memory for \"div\"\n", ERROR_PRINT);
@@ -204,6 +204,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	memset(token_content_copy, 0, strlen(token->content));
 	strcpy(token_content_copy, token->content);
 
+
 	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
 	if (token->token == CALLOUT) characters_to_cut += (11-2*(strlen(callout_style.sheet[1])-1)) - 6*(1-multiple_lines_boolean);
 	if (multiple_lines_boolean == 0) characters_to_cut += non_ascii_offset;
@@ -213,6 +214,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		}
 	}
 	
+
 
 	// place "after" at the end of width if bool is true
 	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
@@ -226,6 +228,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		}
 		memset(full_width_padding, 32, padding_size);
 	}
+
 	
 	
 	// creating the final "line" and appending it tothe output
@@ -236,6 +239,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		sprintf(cut_output, "%s%s%s", token_content_copy, full_width_padding, after);
 	}
 	str_append_to_output(cut_output);
+
 
 
 	// recursion to add multiple lines if bool is true
@@ -271,6 +275,7 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 void generate_output() {
 	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main
 
+
 	// same order as defined in enum (tokens)
 	
 	for (int i = 0; i < MAX_TOKENS - 1; i++) { // -1 for END_FILE
@@ -292,7 +297,9 @@ void generate_output() {
 			str_append_to_output(border_output);	
 
 			// main part
+
 			format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, 1, 1);
+
 			str_append_to_output("\n");
 
 			// under
@@ -347,6 +354,13 @@ void dev_print_tokens() {
 
 // themes
 
+char *get_string_between_quotations(char *value, int quotation_indicies[], int from, int to) {
+	char *string = (char*)malloc(16 * sizeof(char));
+	strncpy(string, value + quotation_indicies[from]+1, quotation_indicies[to]-quotation_indicies[from]-1);		
+	string[quotation_indicies[to]-quotation_indicies[from]] = '\0';
+	return string;
+}
+
 void set_token_style(Token token, char *value) {
 	
 	int quotation_indicies[32];
@@ -358,28 +372,21 @@ void set_token_style(Token token, char *value) {
 		}
 	}
 	if (token == DIVIDER) {
-
+		styles[token]->before = get_string_between_quotations(value, quotation_indicies, 0, 1);
 	}
 	else if (token == CALLOUT) {
-
+		for (int i = 0; i < 8; i++) {
+			styles[token]->sheet[i] = get_string_between_quotations(value, quotation_indicies, i*2,  i*2+1);
+		}
 	}
 	else {
 		if (j > 4) printf("%s unexpected quotation mark in theme file\n", WARNING_PRINT);
 		if (j < 4) printf("%s missing quotation mark in theme file\n", WARNING_PRINT);
-		//printf("%s value=\'%s\' ind[0]=%d  ind[1]=%d\n", DEBUG_PRINT, value, quotation_indicies[0], quotation_indicies[1]);
-		// before
-		char *before = (char*)malloc(16 * sizeof(char));
-		strncpy(before, value + quotation_indicies[0]+1, quotation_indicies[1]-quotation_indicies[0]-1);		
-		before[quotation_indicies[1]-quotation_indicies[0]] = '\0';
-		styles[token]->before = before;
 		
-		// after
-		char *after = (char*)malloc(16 * sizeof(char));
-		strncpy(after, value + quotation_indicies[2]+1, quotation_indicies[3]-quotation_indicies[2]-1);		
-		after[quotation_indicies[3]-quotation_indicies[2]] = '\0';
-		styles[token]->after = after;
+		styles[token]->before = get_string_between_quotations(value, quotation_indicies, 0, 1);
+		styles[token]->after = get_string_between_quotations(value, quotation_indicies, 2, 3);
 	
-		// before size
+		// before length
 		int first_int_start_index = 0;
 		for (int i = quotation_indicies[3]; i < strlen(value); i++) {
 			if (value[i] == ',') {
@@ -397,6 +404,7 @@ void set_token_style(Token token, char *value) {
 		k++;
 		styles[token]->before_length = atoi(before_length);	
 
+		// after length
 		char after_length[32];
 		int l = 0;
 		while (value[first_int_start_index + k + l] != ']') {
@@ -440,11 +448,11 @@ void set_theme(char *content) {
 			
 			Token temp_token;
 			if (str_compare_at_index(key, 0, "heading_1")) set_token_style(HEADING_1, value);
-			if (str_compare_at_index(key, 0, "heading_2")) temp_token = HEADING_2;
-			if (str_compare_at_index(key, 0, "heading_3")) temp_token = HEADING_3;
-			if (str_compare_at_index(key, 0, "sidearrow")) temp_token = SIDE_ARROW;
-			if (str_compare_at_index(key, 0, "divider")) temp_token = DIVIDER;
-			if (str_compare_at_index(key, 0, "callout")) temp_token = CALLOUT;
+			if (str_compare_at_index(key, 0, "heading_2")) set_token_style(HEADING_2, value);
+			if (str_compare_at_index(key, 0, "heading_3")) set_token_style(HEADING_3, value);
+			if (str_compare_at_index(key, 0, "sidearrow")) set_token_style(SIDE_ARROW, value);
+			if (str_compare_at_index(key, 0, "divider")) set_token_style(DIVIDER, value);
+			if (str_compare_at_index(key, 0, "callout")) set_token_style(CALLOUT, value);
 			
 			line++;
 			equal_sign_index = 0;
@@ -550,6 +558,7 @@ int main(int argc, char *argv[]) {
 		printf("%s STYLE\n", DEBUG_PRINT);
 		char *theme_file_content = file_to_string(theme_file_path);
 		if (theme_file_content == NULL) {
+			fclose(output_file);
 			return -1;
 		}
 		set_theme(theme_file_content);	
@@ -559,6 +568,7 @@ int main(int argc, char *argv[]) {
 	// read input file and tokenize
 	char *input_file_content = file_to_string(input_file_path); 
 	if (input_file_content == NULL) {
+		fclose(output_file);
 		return -1;
 	}
 	tokenize(input_file_content);
@@ -568,6 +578,7 @@ int main(int argc, char *argv[]) {
 	generate_output();
 	if (output == NULL) {
 		printf("%s failed to allocate memory for \"output\" (generation failed)\n", ERROR_PRINT);
+		fclose(output_file);
 		return -1;
     	} 
 	output[strlen(output)] = '\0';
@@ -577,9 +588,14 @@ int main(int argc, char *argv[]) {
 	free((void*)output);
 
 	if (theme_file_path != NULL) {
-		for (int i = 0; i < sizeof(styles)/sizeof(styles[0]); i++) {
-			//free(styles[i]->before);
-			//free(styles[i]->after);
+		for (int i = 0; i < 6; i++) {
+			if (styles[i]->token == CALLOUT) {
+				for (int j = 0; j < 8; j++) free(styles[i]->sheet[j]);
+			}
+			else {
+				free(styles[i]->before);
+				if (styles[i]->token != DIVIDER) free(styles[i]->after);
+			}
 		}
 	}
 

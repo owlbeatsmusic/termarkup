@@ -1,12 +1,11 @@
 
 
   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃               ▪━ heading1heading1 ━▪
-  ┃              ▪▪━ heading2heading2 ━▪▪
-  ┃  ▪▪▪━ heading3heading3heading3heading3head ━▪▪▪
-  ┃       ing3heading3heading3heading3heading3             
-  ┃       heading3heading3heading3heading3head             
-  ┃                   ing3heading3             
+  ┃               ⫷━ heading1heading1 ━⫸
+  ┃              ◂◂━ heading2heading2 ━▸▸
+  ┃ ⦚ heading3heading3heading3heading3heading3heading3 ⦚
+  ┃   heading3heading3heading3heading3heading3heading3    
+  ┃               heading3heading3heading3    
   ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ┃   12345678909abcedfghijklmnopqrstuvwxyz1234567890
   ┃

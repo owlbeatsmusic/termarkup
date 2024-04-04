@@ -51,12 +51,12 @@ consectetur.
   </tbody>
 </table>
 
-## What & Why
-*A terminal can not display a markdown file correctly for obvious reasons*. What I have wanted for a while is a stylized file "format" made to make simple plain-text files a bit prettier. The main idea from the beginning being the callout (inspired by notions callouts) which would be a pain to create without this language. It was also important from the start to keep everything minimal and simple.
+## What Is This?
+*A terminal can not display a markdown file correctly*. What I have wanted for a while is a stylized file "format" made to make simple plain-text files a bit prettier. The main idea from the beginning being the callout (inspired by notions callouts) which would be a pain to create without this language. It was also important from the start to keep everything minimal and simple.
 
 *My idea to keep the files tidy is to introduce a width*. A text file is pretty much infinite in width (without word-wrap that is) so by capping the with i could get more structured text files. (width can be seen on the divider in the example above)
    
-## Install & Use
+### Install & Use
 1. Compile termarkup (use `make.sh` or just compile with your c compilor because of no external libraries)
    ```bash
    $ ./make.sh
@@ -66,3 +66,19 @@ consectetur.
    ```bash
    $ ./termarkup example_input.txt example_output.txt 28
    ```
+</br>
+
+## Documentation
+### All Formatting
+<table><thead><tr>
+      <th width="500px"> INPUT</th>
+      <th width="500px">OUTPUT</th>
+    </tr></thead>
+<tbody><tr width="600px"><td><pre><code>
+*-heading 1
+<br><br></code></pre></td>
+<td><pre><code>
+*- heading 1 -*
+</code></pre></td></tr></tbody>
+</table>
+

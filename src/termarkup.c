@@ -21,6 +21,11 @@
 // tokenizing & output
 
 typedef enum {
+	DEFAULT,
+	CENTER
+} Modifier;
+
+typedef enum {
 	HEADING_1,
 	HEADING_2,
 	HEADING_3,
@@ -37,6 +42,8 @@ typedef enum {
 typedef struct {
 	Token token;
 	char *content;
+	Modifier modifier;
+
 } TokenContent;
 
 TokenContent tokens[MAX_TOKENS];
@@ -70,6 +77,13 @@ Style side_arrow_style = {SIDE_ARROW, "> ", "", 2, 0, NULL};
 Style divider_style = {DIVIDER, "~", "", 1, 0, NULL};
 Style callout_style = {CALLOUT, "", "", 0, 0, {"-", "|", ".", ".", ".", "'", "'", "'"}};
 Style text_style = {TEXT, "", "", 0, 0, NULL};
+
+int padding_x = 2;
+int padding_y = 2;
+int border_bool = 1;
+char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
+char *before_padding;
+char *after_padding;
 /*
 Style h1_style = {"*- ", " -*", 2, 2, NULL};
 Style h2_style = {"**- ", " -**", 3, 3, NULL};
@@ -113,11 +127,12 @@ char *str_create_divider(int length, char *symbol) {
 
 // tokenizer
 
-void add_token(int *tokens_index, Token token, char *content) {
+void add_token(int *tokens_index, Token token, char *content, Modifier modifier) {
 	tokens[*tokens_index].token = token;
 	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
 	strcpy(tokens[*tokens_index].content, content);
 	tokens[*tokens_index].content[strlen(content)] = '\0';
+	tokens[*tokens_index].modifier = modifier;
 	*tokens_index += 1;
 	return;
 }
@@ -128,12 +143,18 @@ void tokenize(char *content) {
 	for (int i = 0; i < strlen(content); i++) {
 		
 		Token temp_token = TEXT;
+		Modifier temp_modifier = DEFAULT;
+
+		if (str_compare_at_index(content, i, "%c")) {
+			temp_modifier = CENTER;
+			i += 2;
+		}
 		if (str_compare_at_index(content, i, "\n")) {
-			add_token(&tokens_index, NEW_LINE, " ");
+			add_token(&tokens_index, NEW_LINE, " ", temp_modifier);
 			temp_token = NEW_LINE;
 		}
 		else if (str_compare_at_index(content, i, "---")) {
-			add_token(&tokens_index, DIVIDER, " ");
+			add_token(&tokens_index, DIVIDER, " ", temp_modifier);
 			temp_token = DIVIDER;
 			i += 2;
 		}
@@ -180,7 +201,7 @@ void tokenize(char *content) {
 			text_buffer[strlen(text_buffer)] = '\0';
 			
 			// then append token and continue to next token
-			add_token(&tokens_index, temp_token, text_buffer);
+			add_token(&tokens_index, temp_token, text_buffer, temp_modifier);
 			i += strlen(text_buffer)-1;
 		}
 		output_lines++;	
@@ -217,10 +238,14 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 
 
 	// place "after" at the end of width if bool is true
-	int padding_size = output_width-(strlen(before)+strlen(token_content_copy)+strlen(after));
-	if (token->token == CALLOUT) padding_size -= 4 - 2 * (strlen(callout_style.sheet[1])-1);
+	int padding_size = output_width-(styles[token->token]->before_length+strlen(token_content_copy)+styles[token->token]->after_length);
+	if (token->token == CALLOUT) padding_size -= 6; 
+	else if (token->modifier == CENTER) {
+		padding_size /= 2;
+		padding_size -= (styles[token->token]->before_length-1)/2;
+	}
 	char *full_width_padding = "";
-	if (padding_size > 0 & fit_to_full_width == 1) {
+	if (padding_size > 0 && (fit_to_full_width == 1 | token->modifier == CENTER)) {
 		full_width_padding = (char*)malloc(padding_size*sizeof(char));
 		if (full_width_padding == NULL) {
 			printf("%s memory allocation for full_width_padding failed.\n", ERROR_PRINT);
@@ -229,17 +254,20 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		memset(full_width_padding, 32, padding_size);
 	}
 
-	
-	
 	// creating the final "line" and appending it tothe output
 	if (token->token == CALLOUT) 
 		sprintf(cut_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding, after);
+	else if (token->modifier == CENTER) {
+		str_append_to_output(full_width_padding);
+		str_append_to_output(before); // because sprintf is weird
+		sprintf(cut_output, "%s%s", token_content_copy, after);
+	}
 	else {
 		str_append_to_output(before); // because sprintf is weird
 		sprintf(cut_output, "%s%s%s", token_content_copy, full_width_padding, after);
 	}
 	str_append_to_output(cut_output);
-
+	
 
 
 	// recursion to add multiple lines if bool is true
@@ -250,13 +278,16 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 	}
 
 	for (int i = 1; i < lines; i++) {
-		char before_padding[strlen(before)];
-		char after_padding[strlen(after)];
-		memset(before_padding, 32, strlen(before)-non_ascii_offset);	
-		memset(after_padding, 32, strlen(after));
+		char before_token_padding[strlen(before)];
+		char after_token_padding[strlen(after)];
+		memset(before_token_padding, 32, strlen(before)-non_ascii_offset);	
+		memset(after_token_padding, 32, strlen(after));
+		
 		str_append_to_output("\n");
 		
 		token->content += output_width-strlen(before)-strlen(after)+non_ascii_offset;
+		str_append_to_output(before_padding);
+		printf("%s before_padding=%lu\n", DEBUG_PRINT, strlen(before_token_padding));
 		if (token->token == CALLOUT) {
 			token->content-=12 - 2 * (strlen(callout_style.sheet[1]) - 1);
 			token->content[0] = ' ';	
@@ -266,21 +297,43 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 
 		// ugly hack but i gave up ok		
 		if (strlen(before)+strlen(after) == 0) format_token_to_fit(token, "", "", non_ascii_offset, 0, 1);
-		else if (strlen(after) == 0) format_token_to_fit(token, before_padding, "", non_ascii_offset, 0, 1);	
-		else if (strlen(before) == 0)  format_token_to_fit(token, "", after_padding, non_ascii_offset, 0, 1);
-		else format_token_to_fit(token, before_padding, after_padding, non_ascii_offset, 0, 1);
+		else if (strlen(after) == 0) format_token_to_fit(token, before_token_padding, "", non_ascii_offset, 0, 1);	
+		else if (strlen(before) == 0)  format_token_to_fit(token, "", after_token_padding, non_ascii_offset, 0, 1);
+		else format_token_to_fit(token, before_token_padding, after_token_padding, non_ascii_offset, 0, 1);
 	}
 }
 
 void generate_output() {
 	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main
 
+	// create border / padding
+	int before_padding_size = padding_x + border_bool * strlen(border_sheet[1]);
+	before_padding = (char*)malloc(before_padding_size * sizeof(char));
+	memset(before_padding, 32, before_padding_size);
+
+	// border (above)
+
+	for (int i = 0; i < padding_y; i++) {
+		str_append_to_output("\n");
+	}
+	char border_above[output_width*strlen(border_sheet[0])];
+	sprintf(border_above, "%s%s%s%s%s", before_padding+strlen(border_sheet[1]), border_sheet[2], str_create_divider(output_width-strlen(border_sheet[2])-strlen(border_sheet[3]), border_sheet[0]), border_sheet[3], "\n");
+	str_append_to_output(border_above);
+	
+	if (border_bool == 1) strcpy(before_padding+before_padding_size-strlen(border_sheet[1]), border_sheet[1]);
+
+	output_width -= 2 * (padding_x + border_bool);
+
 
 	// same order as defined in enum (tokens)
-	
-	for (int i = 0; i < MAX_TOKENS - 1; i++) { // -1 for END_FILE
+	str_append_to_output(before_padding);
+	for (int i = 0; i < sizeof(tokens)/sizeof(tokens[0]); i++) {
 		if (tokens[i].content == NULL) break;
-		if (tokens[i].token == NEW_LINE) str_append_to_output("\n");
+		
+		if (tokens[i].token == NEW_LINE) {
+			str_append_to_output("\n");
+			str_append_to_output(before_padding);
+		}
 		else if (tokens[i].token == DIVIDER) {
 			char *div = str_create_divider(output_width, divider_style.before);
 			str_append_to_output(div);
@@ -295,15 +348,16 @@ void generate_output() {
 			char border_output[output_width*strlen(callout_style.sheet[0])];
 			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[2], short_div, callout_style.sheet[3], div, callout_style.sheet[4], "\n");
 			str_append_to_output(border_output);	
-
+			str_append_to_output(before_padding);
 			// main part
 
 			format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, 1, 1);
 
 			str_append_to_output("\n");
+			str_append_to_output(before_padding);
 
 			// under
-			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[5], short_div, callout_style.sheet[6], div, callout_style.sheet[7], "\n");
+			sprintf(border_output, "%s%s%s%s%s", callout_style.sheet[5], short_div, callout_style.sheet[6], div, callout_style.sheet[7]);
 			str_append_to_output(border_output);	
 			
 
@@ -318,6 +372,16 @@ void generate_output() {
 				1, 
 				0);
 	}
+
+	// border (under)
+	output_width += 2 * (padding_x + border_bool);
+	
+	if (border_bool == 1) strcpy(before_padding+before_padding_size-strlen(border_sheet[1]), str_create_divider(strlen(border_sheet[1]), " "));
+	
+	char border_under[output_width*strlen(border_sheet[0])];
+	sprintf(border_under, "%s%s%s%s%s%s", "\n", before_padding+strlen(border_sheet[1]), border_sheet[4], str_create_divider(output_width-strlen(border_sheet[4])-strlen(border_sheet[5]), border_sheet[0]), border_sheet[5], "\n");
+	str_append_to_output(border_under);
+	
 	output[output_index] = '\0';
 }
 
@@ -552,7 +616,6 @@ int main(int argc, char *argv[]) {
 	styles[5] = &callout_style;
 	styles[6] = &text_style;
 	if (theme_file_path != NULL) { 
-		printf("%s STYLE\n", DEBUG_PRINT);
 		char *theme_file_content = file_to_string(theme_file_path);
 		if (theme_file_content == NULL) {
 			fclose(output_file);
@@ -597,7 +660,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	// complete
+	// done
 	printf("%s termarkup file outputted (%s)\n", DONE_PRINT, output_file_path);
 	if(non_ascii_found_boolean) printf("%s one or more non-ascii charcters were found and was removed\n", WARNING_PRINT);
 	return 0;

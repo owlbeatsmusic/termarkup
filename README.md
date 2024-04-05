@@ -152,3 +152,23 @@ You can place a modifier at the start of the line to modify the formatting. The 
 
 ### Themes
 You can customzie your output using themes. Theme-files are located in the `themes/` folder but does not have to be there to be used. You can either use one of the themes that already exsist, modify it or create your own! 
+
+For all formatting **except** the `divider` and `callout` the theme file is structured like this (eg: heading 1):
+```
+heading_1 = ["*- ", " -*", 3, 3]
+```
+The first two strings are the **before** and **after**. Before is the string that comes before the heading 1 and after is the string that comes after. The two digits are the **before length** and **after length** of their corresponding strings (including white space). This is due to some special charcters being counted as multiple charcters. 
+> [!IMPORTANT]  
+> Remember to change the before and after length when chaning the before and after strings.
+
+**Divider**</br>
+For the divider you do not have to specify the length but in you can only have **one** symbol (altough it can be a symbol with length of multiple charcter).
+```
+divider = ["-"]
+```
+
+**Callout**</br>
+For callouts there is a form of sheet that you modify. As with dividers you can only **one** symbol per value.
+```
+callout    = ["━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"]
+```

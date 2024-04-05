@@ -1,28 +1,15 @@
 
 
-  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃               ⫷━ heading1heading1 ━⫸
-  ┃              ◂◂━ heading2heading2 ━▸▸
-  ┃ ⦚ heading3heading3heading3heading3heading3heading3 ⦚
-  ┃   heading3heading3heading3heading3heading3heading3    
-  ┃               heading3heading3heading3    
-  ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ┃   12345678909abcedfghijklmnopqrstuvwxyz1234567890
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃             ▪━ heading 1 ━▪
+  ┃            ▪▪━ heading 2 ━▪▪
+  ┃          ▪▪▪━ heading 3 ━▪▪▪
+  ┃Lorem ipsum dolor sit amet, consectetur.
+  ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ┃┗ sidearrow
+  ┃┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃┃ $ ┃  callout example 2. this is a test.  ┃
+  ┃┃   ┃                                      ┃
+  ┃┗━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
   ┃
-  ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ┃┗ sidearrow sidearrow sidearrow3 sidearrow4 sidearrow 
-  ┃  sidearrow sidearrow sidearrow sidearrow sidearrow si
-  ┃  dearrow sidearrow sidearrow sidearrow sidearrow side
-  ┃  arrow sidearrow sidearrow sidearrow sidearrow sidear
-  ┃  row sidearrow sidearrow sidearrow sidearrow sidearro
-  ┃  w sidearrow                                         
-  ┃┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃┃ $ ┃ 12345678909,abcedfghijklmnopqrstuvwxyz12345678 ┃
-  ┃┃   ┃ 909abcedfghijklmnopqrstuvwxyz12345678909abcedf ┃
-  ┃┃   ┃ ghijklmnopqrstuvwxyz12345678909abcedfghijklmno ┃
-  ┃┃   ┃ pqrstuvwxyz12345678909abcedfghijklmnopqrstuvwx ┃
-  ┃┃   ┃ yz12345678909abcedfghijklmnopqrstuvWxyz.       ┃
-  ┃┗━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-  ┃hej
-  ┃
-  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛

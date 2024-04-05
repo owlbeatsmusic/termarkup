@@ -84,15 +84,6 @@ int border_bool = 1;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 char *before_padding;
 char *after_padding;
-/*
-Style h1_style = {"*- ", " -*", 2, 2, NULL};
-Style h2_style = {"**- ", " -**", 3, 3, NULL};
-Style h3_style = {"***- ", " -***", 4, 4, NULL};
-Style side_arrow_style = {"┗ ", "", 2, 0, NULL};
-Style divider_style = {"━", "", 1, 0, NULL};
-Style callout_style = {"", "", 0, 0, {"━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"}};
-Style text_style = {"", "", 0, 0, NULL};
-*/
 
 
 int str_compare_at_index(char *content, int index, char* compare) {
@@ -287,7 +278,6 @@ void format_token_to_fit(TokenContent *token, char *before, char *after, int non
 		
 		token->content += output_width-strlen(before)-strlen(after)+non_ascii_offset;
 		str_append_to_output(before_padding);
-		printf("%s before_padding=%lu\n", DEBUG_PRINT, strlen(before_token_padding));
 		if (token->token == CALLOUT) {
 			token->content-=12 - 2 * (strlen(callout_style.sheet[1]) - 1);
 			token->content[0] = ' ';	
@@ -346,31 +336,22 @@ void generate_output() {
 
 			// above calloiut
 			char border_output[output_width*strlen(callout_style.sheet[0])];
-			sprintf(border_output, "%s%s%s%s%s%s", callout_style.sheet[2], short_div, callout_style.sheet[3], div, callout_style.sheet[4], "\n");
-			str_append_to_output(border_output);	
-			str_append_to_output(before_padding);
+			sprintf(border_output, "%s%s%s%s%s%s%s", callout_style.sheet[2], short_div, callout_style.sheet[3], div, callout_style.sheet[4], "\n", before_padding);
+			str_append_to_output(border_output);
+
 			// main part
-
 			format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, 1, 1);
-
 			str_append_to_output("\n");
-			str_append_to_output(before_padding);
 
 			// under
-			sprintf(border_output, "%s%s%s%s%s", callout_style.sheet[5], short_div, callout_style.sheet[6], div, callout_style.sheet[7]);
+			sprintf(border_output, "%s%s%s%s%s%s", before_padding, callout_style.sheet[5], short_div, callout_style.sheet[6], div, callout_style.sheet[7]);
 			str_append_to_output(border_output);	
 			
 
 			free(div);
 			free(short_div);
 		}
-		else format_token_to_fit(
-				&tokens[i], 
-				styles[tokens[i].token]->before, 
-				styles[tokens[i].token]->after, 
-				strlen(styles[tokens[i].token]->before) - styles[tokens[i].token]->before_length, 
-				1, 
-				0);
+		else format_token_to_fit(&tokens[i], styles[tokens[i].token]->before, styles[tokens[i].token]->after, strlen(styles[tokens[i].token]->before) - styles[tokens[i].token]->before_length, 1, 0);
 	}
 
 	// border (under)
@@ -384,37 +365,6 @@ void generate_output() {
 	
 	output[output_index] = '\0';
 }
-
-
-
-
-// development functions
-
-void dev_print_tokens() {
-	// same order as defined in enum
-	char *token_names[] = {
-		"HEADING_1",
-		"HEADING_2",
-		"HEADING_3",
-		"SIDE_ARROW",
-		"DVIIDER",
-		"CALLOUT",
-
-		"TEXT",
-
-		"NEW_LINE",
-		"END_FILE"
-	};
-	printf("[");
-	for (int i = 0; i < sizeof(tokens) / sizeof(TokenContent); i++) {
-		if (tokens[i].content == NULL) continue;
-		printf("[%s, %s], \n", token_names[tokens[i].token], tokens[i].content);
-	}
-	printf("]\n");
-}
-
-
-
 
 // themes
 

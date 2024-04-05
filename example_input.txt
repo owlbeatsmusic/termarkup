@@ -1,10 +1,7 @@
-%c*-heading1heading1
-%c**-heading2heading2
-%c***-heading3heading3heading3heading3heading3heading3heading3heading3heading3heading3heading3heading3heading3heading3heading3
+%c*-heading 1
+%c**-heading 2
+%c***-heading 3
+Lorem ipsum dolor sit amet, consectetur.
 ---
-%c12345678909abcedfghijklmnopqrstuvwxyz1234567890
-
----
-+-sidearrow sidearrow sidearrow3 sidearrow4 sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow sidearrow
-%c#$12345678909,abcedfghijklmnopqrstuvwxyz12345678909abcedfghijklmnopqrstuvwxyz12345678909abcedfghijklmnopqrstuvwxyz12345678909abcedfghijklmnopqrstuvwxyz12345678909abcedfghijklmnopqrstuvwxyz12345678909abcedfghijklmnopqrstuvWxyz.
-hej
++-sidearrow
+#$ callout example 2. this is a test.

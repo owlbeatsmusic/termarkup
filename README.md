@@ -65,7 +65,7 @@ consectetur.
    $ ./make.sh
    ```
 2. Create the input file (eg: `example_input.txt`)
-3. Run termarkup with specified **input**, **output**, your chosen **width** and optionally **theme**. Docs: [Command Line Interface](#command-line-interface)
+3. Run termarkup with specified **input**, **output**, your chosen **width** and optionally **theme**. Read more here: [Command Line Interface](#command-line-interface)
    ```bash
    $ ./termarkup example_input.txt example_output.txt 28 themes/normal-theme.txt
    ```

@@ -73,9 +73,17 @@ consectetur.
 
 ## Documentation
 Table of contents
-1. [All Formatting](#all-formatting)
-2. [Modifiers](#modifiers)	
-3. [Themes](#themes)	
+1. [Command Line Interface](#command-line-interface)
+2. [All Formatting](#all-formatting)
+3. [Modifiers](#modifiers)	
+4. [Themes](#themes)	
+
+### Command Line Interface
+When running termakrup in your terminal these are the parameters in order.
+1. **`Input file path`**. [_REQUIRED_]. Path to the file that will be read. It will be read as a plain text file so suggested file extension is `.txt` but any will work.
+2. **`Output file path`**. [_REQUIRED_]. Path to the file that the output will be written to. It will be written as a plain text file.
+3. **`Width`**. [_REQUIRED_]. Whole number between 10 and 512. The width limits the length of each line/row and separates the text into multiple lines/rows.
+4. **`Theme`**. [_OPTIONAL_]. Path to the theme-file. Customize the output to your liking. Read more here: [Themes](#themes)	
 
 ### All Formatting
 With a width of `28` and using `themes/normal-theme.txt`

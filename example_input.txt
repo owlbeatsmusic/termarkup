@@ -1,6 +1,7 @@
-%c*-heading 1
-%c**-heading 2
-%c***-heading 3
+%c*-abcdcba
+%c**-11abcdefedcba11
+%c***-aba
+
 Lorem ipsum dolor sit amet, consectetur.
 ---
 +-sidearrow

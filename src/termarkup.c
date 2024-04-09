@@ -128,8 +128,6 @@ char *str_get_string_between_quotations(char *value, int quotation_indicies[], i
 }
 
 
-
-
 // tokenizer
 
 void tokenizer_add_token(int *tokens_index, Token token, char *content, Modifier modifier) {
@@ -250,30 +248,33 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	int padding_size = output_width-(styles[token->token]->before_length+strlen(token_content_copy)+styles[token->token]->after_length);
 	if (token->token == CALLOUT) padding_size -= 6; 
 	else if (token->modifier == CENTER) {
-		padding_size /= 2;
-		padding_size -= (styles[token->token]->before_length-1)/2;
+		padding_size = padding_size/2;
+		//padding_size -= (styles[token->token]->before_length + styles[token->token]->after_length + strlen(token_content_copy))/2;
 	}
-	char *full_width_padding = "";
-	if (padding_size > 0 && (fit_to_full_width == 1 | token->modifier == CENTER)) {
-		full_width_padding = (char*)malloc(padding_size*sizeof(char));
-		if (full_width_padding == NULL) {
-			printf("%s memory allocation for full_width_padding failed.\n", error_print);
+	char *full_width_padding[] = {"", ""}; //before / after
+	if (padding_size > 0) {
+		full_width_padding[0] = (char*)malloc((padding_size+1)*sizeof(char));
+		full_width_padding[1] = (char*)malloc(padding_size*sizeof(char));
+		if (full_width_padding[0] == NULL | full_width_padding[1] == NULL) {
+			printf("%s memory allocation for full_width_padding[0] failed.\n", error_print);
 			return;
 		}
-		memset(full_width_padding, 32, padding_size);
+		memset(full_width_padding[0], 44, padding_size);
+		memset(full_width_padding[1], 43, padding_size - ((output_width % 2))+1);
+		full_width_padding[1][(padding_size - ((output_width % 2))+1)] = '\0';
 	}
 
 	// creating the final "line" and appending it tothe output
 	if (token->token == CALLOUT) 
-		sprintf(cut_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding, after);
+		sprintf(cut_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding[0], after);
 	else if (token->modifier == CENTER) {
-		output_append(full_width_padding);
+		output_append(full_width_padding[0]);
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s", token_content_copy, after);
+		sprintf(cut_output, "%s%s%s", token_content_copy, after, full_width_padding[1]);
 	}
 	else {
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s%s", token_content_copy, full_width_padding, after);
+		sprintf(cut_output, "%s%s%s%s", token_content_copy, full_width_padding[0], after, full_width_padding[1]);
 	}
 	output_append(cut_output);
 	
@@ -292,6 +293,7 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 		memset(before_token_padding, 32, strlen(before)-non_ascii_offset);	
 		memset(after_token_padding, 32, strlen(after));
 		
+		if (border_bool == TRUE) output_append(border_sheet[1]);
 		output_append("\n");
 		
 		token->content += output_width-strlen(before)-strlen(after)+non_ascii_offset;
@@ -309,6 +311,7 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 		else if (strlen(before) == 0)  output_format_token_to_fit(token, "", after_token_padding, non_ascii_offset, FALSE, TRUE);
 		else output_format_token_to_fit(token, before_token_padding, after_token_padding, non_ascii_offset, FALSE, TRUE);
 	}
+	if (padding_size > 0) free(full_width_padding[0]);
 }
 
 void output_generate() {
@@ -344,6 +347,7 @@ void output_generate() {
 		if (tokens[i].content == NULL) break;
 		
 		if (tokens[i].token == NEW_LINE) {
+			if (border_bool == TRUE) output_append(border_sheet[1]);
 			output_append("\n");
 			output_append(before_padding);
 		}

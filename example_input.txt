@@ -1,8 +1,11 @@
 %c*-abcdcba
-%c**-11abcdefedcba11
-%c***-aba
+ 
+%c***-abaa
 
 Lorem ipsum dolor sit amet, consectetur.
+
 ---
-+-sidearrow
++-sidearrow sidearrow sidearrow  sidearrow sidearrow sidearrow sidearrow sidearrow
+
 #$ callout example 2. this is a test.
+

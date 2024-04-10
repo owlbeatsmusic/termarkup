@@ -60,6 +60,7 @@ consectetur.
 *My idea to keep the files tidy is to introduce a width*. A text file is pretty much infinite in width (without word-wrap that is) so by limiting the width I could get more structured text files. (the width can be seen on the divider in the example above)
    
 ### Install & Use
+(*only compatible for unix systems for now**)
 1. Compile termarkup (run `./make.sh` or just compile with your c compiler because there are no external libraries)
    ```bash
    $ ./make.sh

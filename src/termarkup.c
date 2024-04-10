@@ -53,6 +53,8 @@ typedef struct {
 const int max_tokens = 512;
 TokenContent tokens[max_tokens];
 
+TokenContent new_line_token_preset = {TEXT, "", DEFAULT};
+
 Bool non_ascii_found_bool = FALSE;
 unsigned int output_width;
 unsigned int output_lines;
@@ -85,9 +87,9 @@ Style text_style = {TEXT, "", "", 0, 0, NULL};
 const int max_theme_key_size = 64;
 const int max_theme_value_size = 256;
 
-int padding_x = 2;
-int padding_y = 2;
-Bool border_bool = 1;
+int padding_x = 1;
+int padding_y = 1;
+Bool border_bool = TRUE;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 char *before_padding;
 char *after_padding;
@@ -232,7 +234,6 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	memset(token_content_copy, 0, strlen(token->content));
 	strcpy(token_content_copy, token->content);
 
-
 	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
 	if (token->token == CALLOUT) characters_to_cut += (11-2*(strlen(callout_style.sheet[1])-1)) - 6*(1-multiple_lines_bool);
 	if (multiple_lines_bool == 0) characters_to_cut += non_ascii_offset;
@@ -244,27 +245,27 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	
 
 
-	// place "after" at the end of width if bool is true
+	// TODO: beskrvinig för det här steget
 	int padding_size = output_width-(styles[token->token]->before_length+strlen(token_content_copy)+styles[token->token]->after_length);
 	if (token->token == CALLOUT) padding_size -= 6; 
 	else if (token->modifier == CENTER) {
-		padding_size = padding_size/2;
-		//padding_size -= (styles[token->token]->before_length + styles[token->token]->after_length + strlen(token_content_copy))/2;
+		padding_size = padding_size/2 + 1;
 	}
-	char *full_width_padding[] = {"", ""}; //before / after
-	if (padding_size > 0) {
-		full_width_padding[0] = (char*)malloc((padding_size+1)*sizeof(char));
-		full_width_padding[1] = (char*)malloc(padding_size*sizeof(char));
-		if (full_width_padding[0] == NULL | full_width_padding[1] == NULL) {
-			printf("%s memory allocation for full_width_padding[0] failed.\n", error_print);
+	char *full_width_padding[] = { "", "" }; // before & after
+	int padding_sizes[2] = { padding_size + (strlen(token_content_copy)%2), padding_size };
+	for (int i = 0; i < 1 + (CENTER == TRUE); i++) {
+		full_width_padding[i] = (char*)malloc(padding_sizes[i]*sizeof(char));
+		if (full_width_padding[i] == NULL) {
+			printf("%s memory allocation for full_width_padding[%d] failed.\n", error_print, i);
 			return;
 		}
-		memset(full_width_padding[0], 44, padding_size);
-		memset(full_width_padding[1], 43, padding_size - ((output_width % 2))+1);
-		full_width_padding[1][(padding_size - ((output_width % 2))+1)] = '\0';
+		memset(full_width_padding[i], 43+i, padding_sizes[i]);
+		full_width_padding[i][padding_sizes[i]-1] = '\0';
 	}
 
-	// creating the final "line" and appending it tothe output
+
+
+	// creating the final "line" and appending it to the output
 	if (token->token == CALLOUT) 
 		sprintf(cut_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding[0], after);
 	else if (token->modifier == CENTER) {
@@ -274,7 +275,7 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	}
 	else {
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s%s%s", token_content_copy, full_width_padding[0], after, full_width_padding[1]);
+		sprintf(cut_output, "%s%s%s", token_content_copy, full_width_padding[0], after); 
 	}
 	output_append(cut_output);
 	
@@ -290,16 +291,16 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	for (int i = 1; i < lines; i++) {
 		char before_token_padding[strlen(before)];
 		char after_token_padding[strlen(after)];
-		memset(before_token_padding, 32, strlen(before)-non_ascii_offset);	
-		memset(after_token_padding, 32, strlen(after));
+		memset(before_token_padding, 32, strlen(before));	
+		memset(after_token_padding, 32, styles[token->token]->after_length);
 		
-		if (border_bool == TRUE) output_append(border_sheet[1]);
+		if (border_bool == TRUE & token->token != CALLOUT) output_append(border_sheet[1]);
 		output_append("\n");
 		
 		token->content += output_width-strlen(before)-strlen(after)+non_ascii_offset;
 		output_append(before_padding);
 		if (token->token == CALLOUT) {
-			token->content-=12 - 2 * (strlen(callout_style.sheet[1]) - 1);
+			token->content-=12 - 2 * (strlen(callout_style.sheet[1]) - 1) - strlen(before_padding);
 			token->content[0] = ' ';	
 			output_format_token_to_fit(token, before, after, 0, FALSE, TRUE);
 			continue;
@@ -311,8 +312,13 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 		else if (strlen(before) == 0)  output_format_token_to_fit(token, "", after_token_padding, non_ascii_offset, FALSE, TRUE);
 		else output_format_token_to_fit(token, before_token_padding, after_token_padding, non_ascii_offset, FALSE, TRUE);
 	}
-	if (padding_size > 0) free(full_width_padding[0]);
+	if (padding_size > 0) {
+		free(full_width_padding[0]);
+		free(full_width_padding[1]);
+	}
 }
+	
+
 
 void output_generate() {
 	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main
@@ -327,16 +333,20 @@ void output_generate() {
 	for (int i = 0; i < padding_y; i++) {
 		output_append("\n");
 	}
-	char border_above[output_width*strlen(border_sheet[0])];
-	sprintf(border_above, "%s%s%s%s%s", 
-			before_padding+strlen(border_sheet[1]), 
-			border_sheet[2], 
-			str_create_divider(output_width-strlen(border_sheet[2])-strlen(border_sheet[3]), 
-			border_sheet[0]), 
-			border_sheet[3], "\n");
-	output_append(border_above);
-	
-	if (border_bool == TRUE) strcpy(before_padding+before_padding_size-strlen(border_sheet[1]), border_sheet[1]);
+
+	char *border_div;
+	if (border_bool == TRUE) {
+		border_div = str_create_divider(output_width-2-2*padding_x, border_sheet[0]);
+		
+		char border_above[output_width*strlen(border_sheet[0])];
+		sprintf(border_above, "%s%s%s%s%s", 
+				before_padding+strlen(border_sheet[1]), 
+				border_sheet[2], 
+				border_div, 
+				border_sheet[3], "\n");
+		output_append(border_above);
+		strcpy(before_padding+before_padding_size-strlen(border_sheet[1]), border_sheet[1]);
+	}
 
 	output_width -= 2 * (padding_x + border_bool);
 
@@ -348,8 +358,16 @@ void output_generate() {
 		
 		if (tokens[i].token == NEW_LINE) {
 			if (border_bool == TRUE) output_append(border_sheet[1]);
+			
 			output_append("\n");
-			output_append(before_padding);
+			
+			if (tokens[i+1].token == NEW_LINE) {
+				output_append(before_padding);
+				output_format_token_to_fit(&new_line_token_preset, "", "", 0, FALSE, FALSE);
+			}
+			else {
+				output_append(before_padding);
+			}
 		}
 		else if (tokens[i].token == DIVIDER) {
 			char *div = str_create_divider(output_width, divider_style.before);
@@ -400,17 +418,18 @@ void output_generate() {
 	// border (under)
 	output_width += 2 * (padding_x + border_bool);
 	
-	if (border_bool == TRUE) strcpy(before_padding+before_padding_size-strlen(border_sheet[1]), str_create_divider(strlen(border_sheet[1]), " "));
+	if (border_bool == TRUE) {
+		strcpy(before_padding+before_padding_size-strlen(border_sheet[1]), str_create_divider(strlen(border_sheet[1]), " "));
 	
-	char border_under[output_width*strlen(border_sheet[0])];
-	sprintf(border_under, "%s%s%s%s%s%s", "\n", 
-			before_padding+strlen(border_sheet[1]), 
-			border_sheet[4], 
-			str_create_divider(output_width-strlen(border_sheet[4])-strlen(border_sheet[5]), 
-			border_sheet[0]), 
-			border_sheet[5], "\n");
-	output_append(border_under);
-	
+		char border_under[output_width*strlen(border_sheet[0])];
+		sprintf(border_under, "%s%s%s%s%s%s", "\n", 
+				before_padding+strlen(border_sheet[1]), 
+				border_sheet[4], 
+				border_div, 
+				border_sheet[5], "\n");
+		output_append(border_under);
+		free(border_div);
+	}
 	output[output_index] = '\0';
 	free(before_padding);
 }

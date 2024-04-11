@@ -87,9 +87,9 @@ Style text_style = {TEXT, "", "", 0, 0, NULL};
 const int max_theme_key_size = 64;
 const int max_theme_value_size = 256;
 
-int padding_x = 1;
-int padding_y = 1;
-Bool border_bool = TRUE;
+int padding_x = 0;
+int padding_y = 0;
+Bool border_bool = FALSE;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 char *before_padding;
 char *after_padding;
@@ -234,11 +234,12 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	memset(token_content_copy, 0, strlen(token->content));
 	strcpy(token_content_copy, token->content);
 
-	int characters_to_cut = (strlen(before) + strlen(token->content) + strlen(after)+1) - output_width;	
-	if (token->token == CALLOUT) characters_to_cut += (11-2*(strlen(callout_style.sheet[1])-1)) - 6*(1-multiple_lines_bool);
-	if (multiple_lines_bool == 0) characters_to_cut += non_ascii_offset;
+	int characters_to_cut = (styles[token->token]->before_length + strlen(token->content) + styles[token->token]->after_length +1) - output_width;	
+	if (token->token == CALLOUT) characters_to_cut += 5 + 2 * (strlen(callout_style.sheet[1])) + 2 * (1-strlen(callout_style.sheet[0])); 
+	//if (token->token == CALLOUT) characters_to_cut += (11-2*(strlen(callout_style.sheet[1])-1)) - 9*(1-multiple_lines_bool);
+	//if (multiple_lines_bool == 0) characters_to_cut += non_ascii_offset;
 	if (characters_to_cut > 0) {
-		for (int i = 1; i < characters_to_cut-non_ascii_offset; i++) {
+		for (int i = 1; i < characters_to_cut; i++) {
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
 		}
 	}
@@ -247,12 +248,12 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 
 	// TODO: beskrvinig för det här steget
 	int padding_size = output_width-(styles[token->token]->before_length+strlen(token_content_copy)+styles[token->token]->after_length);
-	if (token->token == CALLOUT) padding_size -= 6; 
+	if (token->token == CALLOUT) padding_size -= 5; 
 	else if (token->modifier == CENTER) {
 		padding_size = padding_size/2 + 1;
 	}
 	char *full_width_padding[] = { "", "" }; // before & after
-	int padding_sizes[2] = { padding_size + (strlen(token_content_copy)%2), padding_size };
+	int padding_sizes[2] = { padding_size, padding_size };
 	for (int i = 0; i < 1 + (CENTER == TRUE); i++) {
 		full_width_padding[i] = (char*)malloc(padding_sizes[i]*sizeof(char));
 		if (full_width_padding[i] == NULL) {
@@ -287,20 +288,21 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 		lines = ceil(strlen(token->content)/(double)(strlen(token_content_copy)));
 		if (token->token == CALLOUT) lines = ceil((strlen(token->content))/(double)(strlen(token_content_copy)-1));
 	}
-
 	for (int i = 1; i < lines; i++) {
 		char before_token_padding[strlen(before)];
 		char after_token_padding[strlen(after)];
-		memset(before_token_padding, 32, strlen(before));	
+		//memset(before_token_padding, 0, strlen(before));	
+		//memset(after_token_padding, 0, strlen(after));	
+		memset(before_token_padding, 32, styles[token->token]->before_length);	
 		memset(after_token_padding, 32, styles[token->token]->after_length);
 		
 		if (border_bool == TRUE & token->token != CALLOUT) output_append(border_sheet[1]);
 		output_append("\n");
 		
-		token->content += output_width-strlen(before)-strlen(after)+non_ascii_offset;
+		token->content += output_width-styles[token->token]->before_length-styles[token->token]->after_length;
 		output_append(before_padding);
 		if (token->token == CALLOUT) {
-			token->content-=12 - 2 * (strlen(callout_style.sheet[1]) - 1) - strlen(before_padding);
+			token->content-= 10 - 2 * strlen(callout_style.sheet[1]);
 			token->content[0] = ' ';	
 			output_format_token_to_fit(token, before, after, 0, FALSE, TRUE);
 			continue;

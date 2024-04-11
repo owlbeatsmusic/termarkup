@@ -53,7 +53,7 @@ typedef struct {
 const int max_tokens = 512;
 TokenContent tokens[max_tokens];
 
-TokenContent new_line_token_preset = {TEXT, "", DEFAULT};
+TokenContent new_line_token_preset = {TEXT, " ", DEFAULT};
 
 Bool non_ascii_found_bool = FALSE;
 unsigned int output_width;
@@ -87,10 +87,11 @@ Style text_style = {TEXT, "", "", 0, 0, NULL};
 const int max_theme_key_size = 64;
 const int max_theme_value_size = 256;
 
-int padding_x = 0;
-int padding_y = 0;
-Bool border_bool = FALSE;
-char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
+int padding_x = 3;
+int padding_y = 2;
+Bool border_bool = TRUE;
+//char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
+char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
 char *before_padding;
 char *after_padding;
 
@@ -233,11 +234,10 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	char token_content_copy[strlen(token->content)];
 	memset(token_content_copy, 0, strlen(token->content));
 	strcpy(token_content_copy, token->content);
-
 	int characters_to_cut = (styles[token->token]->before_length + strlen(token->content) + styles[token->token]->after_length +1) - output_width;	
+	
+	// TODO: explain hy this addidtion why this works
 	if (token->token == CALLOUT) characters_to_cut += 5 + 2 * (strlen(callout_style.sheet[1])) + 2 * (1-strlen(callout_style.sheet[0])); 
-	//if (token->token == CALLOUT) characters_to_cut += (11-2*(strlen(callout_style.sheet[1])-1)) - 9*(1-multiple_lines_bool);
-	//if (multiple_lines_bool == 0) characters_to_cut += non_ascii_offset;
 	if (characters_to_cut > 0) {
 		for (int i = 1; i < characters_to_cut; i++) {
 			token_content_copy[strlen(token_content_copy)-1] = '\0';
@@ -253,14 +253,20 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 		padding_size = padding_size/2 + 1;
 	}
 	char *full_width_padding[] = { "", "" }; // before & after
-	int padding_sizes[2] = { padding_size, padding_size };
-	for (int i = 0; i < 1 + (CENTER == TRUE); i++) {
+	int padding_sizes[2] = { 
+		padding_size + (1-output_width%2) * (token->token != CALLOUT), 
+		padding_size
+		};
+	if (padding_size < 2) padding_sizes[0] = 0;
+	if (token->modifier != CENTER) padding_sizes[1] = 1;
+	else padding_sizes[1] -= 1-strlen(token_content_copy)%2;
+	for (int i = 0; i < 2; i++) {
 		full_width_padding[i] = (char*)malloc(padding_sizes[i]*sizeof(char));
 		if (full_width_padding[i] == NULL) {
 			printf("%s memory allocation for full_width_padding[%d] failed.\n", error_print, i);
 			return;
 		}
-		memset(full_width_padding[i], 43+i, padding_sizes[i]);
+		memset(full_width_padding[i], 44+i, padding_sizes[i]);
 		full_width_padding[i][padding_sizes[i]-1] = '\0';
 	}
 
@@ -276,9 +282,10 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	}
 	else {
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s%s", token_content_copy, full_width_padding[0], after); 
+		sprintf(cut_output, "%s%s%s%s", token_content_copy, full_width_padding[0], after, full_width_padding[1]); 
 	}
 	output_append(cut_output);
+	if (border_bool == TRUE) output_append(border_sheet[1]);
 	
 
 
@@ -296,13 +303,16 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 		memset(before_token_padding, 32, styles[token->token]->before_length);	
 		memset(after_token_padding, 32, styles[token->token]->after_length);
 		
-		if (border_bool == TRUE & token->token != CALLOUT) output_append(border_sheet[1]);
 		output_append("\n");
-		
-		token->content += output_width-styles[token->token]->before_length-styles[token->token]->after_length;
+	
+		int offset = output_width-styles[token->token]->before_length-styles[token->token]->after_length;
+		token->content += offset;
+
 		output_append(before_padding);
 		if (token->token == CALLOUT) {
-			token->content-= 10 - 2 * strlen(callout_style.sheet[1]);
+			//token->content-= 10 - 2 * strlen(callout_style.sheet[1]);
+			offset = 1 + 5 + 2 * (strlen(callout_style.sheet[1])) + 2 * (1-strlen(callout_style.sheet[0]));
+			token->content -= offset;
 			token->content[0] = ' ';	
 			output_format_token_to_fit(token, before, after, 0, FALSE, TRUE);
 			continue;
@@ -323,19 +333,19 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 
 
 void output_generate() {
-	output = malloc(sizeof(char) * output_width * output_lines); // mem safety in main
+	output = malloc(sizeof(char) * (output_width*3) * output_lines); // mem safety in main
 
 	// create border / padding
-	int before_padding_size = padding_x + border_bool * strlen(border_sheet[1]);
-	before_padding = (char*)malloc(before_padding_size * sizeof(char));
+	int before_padding_size = padding_x + border_bool * (strlen(border_sheet[1]-1));
+	before_padding = (char*)malloc((before_padding_size+1) * sizeof(char));
 	memset(before_padding, 32, before_padding_size);
+	before_padding[before_padding_size] = '\0';
 
 	// border (above)
 
 	for (int i = 0; i < padding_y; i++) {
 		output_append("\n");
 	}
-
 	char *border_div;
 	if (border_bool == TRUE) {
 		border_div = str_create_divider(output_width-2-2*padding_x, border_sheet[0]);
@@ -359,7 +369,6 @@ void output_generate() {
 		if (tokens[i].content == NULL) break;
 		
 		if (tokens[i].token == NEW_LINE) {
-			if (border_bool == TRUE) output_append(border_sheet[1]);
 			
 			output_append("\n");
 			
@@ -374,6 +383,7 @@ void output_generate() {
 		else if (tokens[i].token == DIVIDER) {
 			char *div = str_create_divider(output_width, divider_style.before);
 			output_append(div);
+			if (border_bool == TRUE) output_append(border_sheet[1]);
 			free(div);
 		}
 		else if (tokens[i].token == CALLOUT) {
@@ -383,16 +393,19 @@ void output_generate() {
 
 			// above calloiut
 			char border_output[output_width*strlen(callout_style.sheet[0])];
-			sprintf(border_output, "%s%s%s%s%s%s%s", 
+			sprintf(border_output, "%s%s%s%s%s", 
 					callout_style.sheet[2], 
 					short_div, 
 					callout_style.sheet[3], 
 					div, 
-					callout_style.sheet[4], 
-					"\n", before_padding);
-			output_append(border_output);
+					callout_style.sheet[4] 
+					);
+			output_append(border_output);	
+			if (border_bool == TRUE) output_append(border_sheet[1]);
+			output_append("\n");
 
 			// main part
+			output_append(before_padding);
 			output_format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, TRUE, TRUE);
 			output_append("\n");
 
@@ -404,6 +417,7 @@ void output_generate() {
 					div, 
 					callout_style.sheet[7]);
 			output_append(border_output);	
+			if (border_bool == TRUE) output_append(border_sheet[1]);
 			
 
 			free(div);

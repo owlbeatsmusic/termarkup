@@ -87,11 +87,11 @@ Style text_style = {TEXT, "", "", 0, 0, NULL};
 const int max_theme_key_size = 64;
 const int max_theme_value_size = 256;
 
-int padding_x = 3;
+int padding_x = 7;
 int padding_y = 2;
-Bool border_bool = TRUE;
-//char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
-char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
+Bool border_bool = FALSE;
+char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
+//char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
 char *before_padding;
 char *after_padding;
 
@@ -266,7 +266,7 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 			printf("%s memory allocation for full_width_padding[%d] failed.\n", error_print, i);
 			return;
 		}
-		memset(full_width_padding[i], 44+i, padding_sizes[i]);
+		memset(full_width_padding[i], 32, padding_sizes[i]);
 		full_width_padding[i][padding_sizes[i]-1] = '\0';
 	}
 
@@ -282,7 +282,7 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 	}
 	else {
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s%s%s", token_content_copy, full_width_padding[0], after, full_width_padding[1]); 
+		sprintf(cut_output, "%s%s%s", token_content_copy, after, full_width_padding[0]); 
 	}
 	output_append(cut_output);
 	if (border_bool == TRUE) output_append(border_sheet[1]);

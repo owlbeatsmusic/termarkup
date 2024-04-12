@@ -1,21 +1,21 @@
 
 
-  .----------------------------.
-  |
-  |
-  |
-  |
-  | ,,,,,,,,,,,,,,,,,,,,,,,,,,,|
-  |Lorem ipsum dolor sit amet, |
-  |consectetur.,,,,,,,,,,,,,,,,|
-  |╰ |
-  |────────────────────────────|
-  |╰ |
-  | ,,,,,,,,,,,,,,,,,,,,,,,,,,,|
-  |┏---┳----------------------┓|
-  || $ | ...callout example 2,||
-  ||   | . this is a test.,,,,||
-  |┗---┻----------------------┛|
-  | ,,,,,,,,,,,,,,,,,,,,,,,,,,,|
-  |
-  '----------------------------'
+       ▪━ abcdcba ━▪                             
+       ▪▪━ xyxkkl djfgkljfk djgkldfj klgjdkfj ━▪▪
+            gkljdfkl gjkldfjglk jdflkjg kldfj    
+           gdfklgjfj                             
+       ▪▪▪━ abaa ━▪▪▪                            
+       ▪━ aba2 ━▪                                
+                                                 
+       Lorem ipsum dolor sit amet, consectetur.  
+       ┗ abaa                                    
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ┗ sidearrow sidearrow sidearrow  sidearrow
+          sidearrow sidearrow sidearrow sidearrow
+                                                 
+       ┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+       ┃ $ ┃ ...callout example 2. this is a te ┃
+       ┃   ┃ st.                                ┃
+       ┗━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                                                 
+       

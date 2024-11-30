@@ -1,21 +1,20 @@
 
 
-       ▪━ abcdcba ━▪                             
-       ▪▪━ xyxkkl djfgkljfk djgkldfj klgjdkfj ━▪▪
-            gkljdfkl gjkldfjglk jdflkjg kldfj    
-           gdfklgjfj                             
-       ▪▪▪━ abaa ━▪▪▪                            
-       ▪━ aba2 ━▪                                
-                                                 
-       Lorem ipsum dolor sit amet, consectetur.  
-       ┗ abaa                                    
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ┗ sidearrow sidearrow sidearrow  sidearrow
-          sidearrow sidearrow sidearrow sidearrow
-                                                 
-       ┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-       ┃ $ ┃ ...callout example 2. this is a te ┃
-       ┃   ┃ st.                                ┃
-       ┗━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-                                                 
+       ▪━ abcdcba ━▪                                                     
+       ▪▪━ xyxkkl djfgkljfk djgkldfj klgjdkfj gkljdfkl gjkldfjglk jdf ━▪▪
+           lkjg kldfjgdfklgjfj                                           
+       ▪▪▪━ abaa ━▪▪▪                                                    
+       ▪━ aba2 ━▪                                                        
+                                                                         
+       Lorem ipsum dolor sit amet, consectetur.                          
+       ┗ abaa                                                            
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ┗ sidearrow sidearrow sidearrow  sidearrow sidearrow sidearrow sid
+         earrow sidearrow                                                
+                                                                         
+       ┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+       ┃ $ ┃ ...callout example 2. this is a test.                      ┃
+       ┃   ┃                                                            ┃
+       ┗━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                                                                         
        

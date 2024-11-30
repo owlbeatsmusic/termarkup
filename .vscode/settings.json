@@ -1,0 +1,10 @@
+{
+    "workbench.colorTheme": "Default Dark Modern",
+    "files.associations": {
+        "print.h": "c",
+        "ajw_bool.h": "c",
+        "ajw_print.h": "c",
+        "ajw_string.h": "c",
+        "tokenizer.h": "c"
+    }
+}

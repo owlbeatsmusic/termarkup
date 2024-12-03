@@ -25,15 +25,16 @@ void output_append(char *string) {
 
 void output_format_token_to_fit(TokenContent *token, char *before, char *after, int non_ascii_offset, Bool multiple_lines_bool, Bool fit_to_full_width) {
 
-	int cut_output_size = strlen(token->content) + strlen(before) + strlen(after);
-	char cut_output[cut_output_size];
+	int token_output_size = strlen(token->content) + strlen(before) + strlen(after);
+	char token_output[token_output_size];
 
 	// cut content to fit in width
 	char token_content_copy[strlen(token->content)];
 	memset(token_content_copy, 0, strlen(token->content));
 	strcpy(token_content_copy, token->content);
 	int characters_to_cut = (styles[token->token]->before_length + strlen(token->content) + styles[token->token]->after_length +1) - output_width;	
-	
+	//printf("%so=%d\n", debug_print, styles[token->token]->before_length);
+
 	// TODO: explain hy this addidtion why this works
 	if (token->token == CALLOUT) characters_to_cut += 5 + 2 * (strlen(callout_style.sheet[1])) + 2 * (1-strlen(callout_style.sheet[0])); 
 	if (characters_to_cut > 0) {
@@ -72,17 +73,17 @@ void output_format_token_to_fit(TokenContent *token, char *before, char *after, 
 
 	// creating the final "line" and appending it to the output
 	if (token->token == CALLOUT) 
-		sprintf(cut_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding[0], after);
+		sprintf(token_output, "%s %c %s %s%s%s", before, token->content[0], callout_style.sheet[1], token_content_copy+1, full_width_padding[0], after);
 	else if (token->modifier == CENTER) {
 		output_append(full_width_padding[0]);
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s%s", token_content_copy, after, full_width_padding[1]);
+		sprintf(token_output, "%s%s%s", token_content_copy, after, full_width_padding[1]);
 	}
 	else {
 		output_append(before); // because sprintf is weird
-		sprintf(cut_output, "%s%s%s", token_content_copy, after, full_width_padding[0]); 
+		sprintf(token_output, "%s%s%s", token_content_copy, after, full_width_padding[0]); 
 	}
-	output_append(cut_output);
+	output_append(token_output);
 	if (border_bool == TRUE) output_append(border_sheet[1]);
 	
 
@@ -140,7 +141,6 @@ void output_generate(void) {
 	before_padding[before_padding_size] = '\0';
 
 	// border (above)
-
 	for (int i = 0; i < padding_y; i++) {
 		output_append("\n");
 	}
@@ -161,6 +161,7 @@ void output_generate(void) {
 	output_width -= 2 * (padding_x + border_bool);
 
 
+	// main loop for adding each token to the output.
 	// same order as defined in enum (tokens)
 	output_append(before_padding);
 	for (int i = 0; i < num_tokens; i++) {
@@ -172,7 +173,7 @@ void output_generate(void) {
 			
 			if (tokens[i+1].token == NEW_LINE) {
 				output_append(before_padding);
-				output_format_token_to_fit(&new_line_token_preset, "", "", 0, FALSE, FALSE);
+				output_format_token_to_fit(&new_line_token_default, "", "", 0, FALSE, FALSE);
 			}
 			else {
 				output_append(before_padding);
@@ -189,7 +190,7 @@ void output_generate(void) {
 			char *div = str_create_divider(output_width-6, callout_style.sheet[0]);
 			char *short_div = str_create_divider(3, callout_style.sheet[0]);
 
-			// above calloiut
+			// above callout
 			char border_output[output_width*strlen(callout_style.sheet[0])];
 			sprintf(border_output, "%s%s%s%s%s", 
 					callout_style.sheet[2], 
@@ -207,7 +208,7 @@ void output_generate(void) {
 			output_format_token_to_fit(&tokens[i], callout_style.sheet[1], callout_style.sheet[1], 6, TRUE, TRUE);
 			output_append("\n");
 
-			// under
+			// under callout
 			sprintf(border_output, "%s%s%s%s%s%s", 
 					before_padding, 
 					callout_style.sheet[5], 

@@ -32,7 +32,7 @@ extern int num_tokens;
 
 extern TokenContent tokens[];
 
-extern TokenContent new_line_token_preset;
+extern TokenContent new_line_token_default;
 
 
 extern void tokenizer_tokenize(char *content);

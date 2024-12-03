@@ -9,8 +9,10 @@
 #include "output.h"
 #include "theme.h"
 
+
 const int main_max_width = 512;
 const int main_min_width = 10;
+
 
 int main(int argc, char *argv[]) {
 	
@@ -21,7 +23,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	if (!strcmp(argv[1], "-version")) {
-		printf("termarkup v1.0 by owlbeatsmusic\n");
+		printf("termarkup v1.1 by owlbeatsmusic\n");
 		return 0;
 	}
 	else if (!strcmp(argv[1], "-help")) {

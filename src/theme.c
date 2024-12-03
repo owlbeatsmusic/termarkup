@@ -1,5 +1,7 @@
 #include <string.h>
+#include <stdio.h>
 
+#include "common/ajw_print.h"
 #include "common/ajw_string.h"
 #include "common/ajw_bool.h"
 #include "tokenizer.h"
@@ -20,7 +22,7 @@ const int max_theme_value_size = 256;
 
 int padding_x = 7;
 int padding_y = 2;
-Bool border_bool = FALSE;
+Bool border_bool = TRUE;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 //char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
 char *before_padding;
@@ -57,7 +59,8 @@ void theme_set_token_style(Token token, char *value) {
 				break;
 			}
 		}
-		char before_length[32];
+		char before_length[16];
+		memset(before_length, 0, 16*sizeof(char));
 		int k = 0;
 		while (value[first_int_start_index + k] != ',') {
 			// TODO: handle what happens if no other comma
@@ -110,12 +113,12 @@ void theme_set(char *content) {
 			strncpy(value, content + equal_sign_index+1, i-equal_sign_index-1);
 			
 			//Token temp_token;
-			if (str_compare_at_index(key, 0, "heading_1")) theme_set_token_style(HEADING_1, value);
-			if (str_compare_at_index(key, 0, "heading_2")) theme_set_token_style(HEADING_2, value);
-			if (str_compare_at_index(key, 0, "heading_3")) theme_set_token_style(HEADING_3, value);
+			if (str_compare_at_index(key, 0, "heading_1"))  theme_set_token_style(HEADING_1, value);
+			if (str_compare_at_index(key, 0, "heading_2"))  theme_set_token_style(HEADING_2, value);
+			if (str_compare_at_index(key, 0, "heading_3"))  theme_set_token_style(HEADING_3, value);
 			if (str_compare_at_index(key, 0, "side_arrow")) theme_set_token_style(SIDE_ARROW, value);
-			if (str_compare_at_index(key, 0, "divider")) theme_set_token_style(DIVIDER, value);
-			if (str_compare_at_index(key, 0, "callout")) theme_set_token_style(CALLOUT, value);
+			if (str_compare_at_index(key, 0, "divider"))    theme_set_token_style(DIVIDER, value);
+			if (str_compare_at_index(key, 0, "callout"))    theme_set_token_style(CALLOUT, value);
 			
 			//line++;
 			equal_sign_index = 0;

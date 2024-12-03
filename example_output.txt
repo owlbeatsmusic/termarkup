@@ -1,20 +1,28 @@
 
 
-       ▪━ abcdcba ━▪                                                     
-       ▪▪━ xyxkkl djfgkljfk djgkldfj klgjdkfj gkljdfkl gjkldfjglk jdf ━▪▪
-           lkjg kldfjgdfklgjfj                                           
-       ▪▪▪━ abaa ━▪▪▪                                                    
-       ▪━ aba2 ━▪                                                        
-                                                                         
-       Lorem ipsum dolor sit amet, consectetur.                          
-       ┗ abaa                                                            
-       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ┗ sidearrow sidearrow sidearrow  sidearrow sidearrow sidearrow sid
-         earrow sidearrow                                                
-                                                                         
-       ┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-       ┃ $ ┃ ...callout example 2. this is a test.                      ┃
-       ┃   ┃                                                            ┃
-       ┗━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-                                                                         
-       
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃*- abcdcba -*                                                   ┃
+    ┃**- xyxkkl djfgkljfk djgkldfj klgjdkfj gkljdfkl gjkldfjglk j -**┃
+    ┃                      dflkjg kldfjgdfklgjfj                     ┃
+    ┃                          ***- abaa -***                        ┃
+    ┃*- aba2 -*                                                      ┃
+    ┃                                                                ┃
+    ┃                                                                ┃
+    ┃                                                                ┃
+    ┃Lorem ipsum dolor sit amet, consectetur.                        ┃
+    ┃> abaa                                                          ┃
+    ┃----------------------------------------------------------------┃
+    ┃> sidearrow sidearrow sidearrow  sidearrow sidearrow sidearrow s┃
+    ┃  idearrow sidearrow                                            ┃
+    ┃                                                                ┃
+    ┃.---.----------------------------------------------------------.┃
+    ┃| $ | ...callout example 2. this is a test.callout example 3.  |┃
+    ┃|   | this is a test.callout example 4. this is a test.callout |┃
+    ┃|   |  example 5. this is a test.callout example 6. this is a  |┃
+    ┃|   | test.callout example 7. this is a test.callout example 8 |┃
+    ┃|   | . this is a test.callout example 9. this is a test.      |┃
+    ┃'---'----------------------------------------------------------'┃
+    ┃                                                                ┃
+    ┃                                                                ┃
+    ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━�┛

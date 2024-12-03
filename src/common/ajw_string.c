@@ -8,7 +8,7 @@
 int str_compare_at_index(char *content, int index, char* compare) {
 	for (int i = 0; i < strlen(compare); i++) {
 		if (content[index+i] != compare[i]) return 0; 
-	}
+	}	
 	return 1;
 }
 

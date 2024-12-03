@@ -10,7 +10,7 @@
 const int max_tokens = 512;
 int num_tokens = 0;
 TokenContent tokens[max_tokens];
-TokenContent new_line_token_preset = {TEXT, " ", DEFAULT};
+TokenContent new_line_token_default = {TEXT, " ", DEFAULT};
 
 
 void tokenizer_add_token(int *tokens_index, Token token, char *content, Modifier modifier) {

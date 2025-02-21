@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
 	styles[4] = &divider_style;
 	styles[5] = &callout_style;
 	styles[6] = &text_style;
+	styles[7] = &new_line_style;
 	if (theme_file_path != NULL) { 
 		char *theme_file_content = file_to_string(theme_file_path);
 		if (theme_file_content == NULL) {
@@ -87,28 +88,43 @@ int main(int argc, char *argv[]) {
 	}
 
 	// output width of the document (=minus padding and border symbol on both sides ) 
-	// needs to sbe set before tokenizing
+	// then check if the cut_output_width is too small and then give error
 	cut_output_width = output_width - 2*padding_x - 2;
+	int largest_before_and_after_length = 0;
+	for (int i = 0; i < MAX_STYLES; i++) {
+		if (styles[i]->before_length + styles[i]->after_length > largest_before_and_after_length) {
+			largest_before_and_after_length = styles[i]->before_length + styles[i]->after_length;
+		}
+	}
+	if (cut_output_width < largest_before_and_after_length) {
+		printf("%s total document width is too small. change either x-padding or output width. \n", error_print);
+		free(input_file_content);
+		fclose(output_file);
+		if (theme_file_path != NULL) {
+			for (int i = 0; i < 6; i++) {
+				if (styles[i]->token == CALLOUT) {
+					for (int j = 0; j < 8; j++) free(styles[i]->sheet[j]);
+				}
+				else {
+					free(styles[i]->before);
+					if (styles[i]->token != DIVIDER) free(styles[i]->after);
+				}
+			}
+		}
+		return -1;
+	}
 
 	tokenizer_tokenize(input_file_content);
 	free(input_file_content);
 
-	
+	printf("lines=%d\n", output_lines);
+	//if (padding_y*2 >= output_lines) output_lines = padding_y*2 + 1;
 
 	// generate output and create finish up
 	output_generate();
-	//if (output == NULL) {
-	//	printf("%s failed to allocate memory for \"output\" (generation failed)\n", error_print);
-	//	fclose(output_file);
-	//	return -1;
-    //	} 
-	//output[strlen(output)] = '\0';
-	//fprintf(output_file, "%s", output);
-	//printf("%s output:\n%s\n", debug_print, output);
-	fclose(output_file);
-	//free((void*)output);
 
-	
+	fclose(output_file);
+
 
 	if (theme_file_path != NULL) {
 		for (int i = 0; i < 6; i++) {

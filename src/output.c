@@ -14,6 +14,7 @@ Bool non_ascii_found_bool = FALSE;
 unsigned int output_width;
 unsigned int cut_output_width;
 unsigned int output_lines;
+unsigned int cut_output_lines;
 unsigned int output_index = 0;
 char *output;
 
@@ -32,18 +33,14 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 		2. OUTPUT GENERATION
 			2.1 LEFT & RIGHT BORDER
 			2.2 BEFORE
-			2.3 TEXT
+			2.3 TEXT / CONTENT
 			2.4 AFTER
 	*/
-	
-	if (token->token_type == NEW_LINE) {
-		return;
-	}
 
 	// 1. LENGTHS & PADDINGS
 	int before_length = styles[token->token_type]->before_length;
-	int after_length  = styles[token->token_type]->after_length;
-	int text_length   = cut_output_width - (before_length + after_length);
+	int after_length = styles[token->token_type]->after_length;
+	int text_length = cut_output_width - (before_length + after_length);
 	if (text_length >= strlen(token->content)) {
 		text_length = strlen(token->content);
 	}
@@ -69,20 +66,33 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	}
 
 
-	/*  2.3 TEXT  */
-	for (int i = 0; i < text_length & i < text_length; i++) { 
-		output_grid[line][center_padding + padding_x+before_length+1+i][0] = token->content[i];
-		output_grid[line][center_padding + padding_x+before_length+1+i][1] = '\0';
+	/*  2.3 TEXT / CONTENT  */
+	if (token->token_type == NEW_LINE) {
+
+	}
+	else if (token->token_type == DIVIDER) {
+		for (int i = 0; i < cut_output_width; i++) {
+			strcpy(output_grid[line][padding_x+1+i], divider_style.before);
+		}
+	}
+	else {
+		for (int i = 0; i < text_length & i < text_length; i++) { 
+			output_grid[line][center_padding + padding_x+before_length+1+i][0] = token->content[i];
+			output_grid[line][center_padding + padding_x+before_length+1+i][1] = '\0';
+		}
 	}
 
 
 	/*  2.4 AFTER  */
+	
 	if (styles[token->token_type]->after_length > 0) {
 		strcpy(output_grid[line][center_padding+padding_x+before_length+1+text_length], styles[token->token_type]->after);
+
 		int after_characters_to_remove = after_length - 1; // -1 because the previous index has the whole before string
 		for (int i = 0; i < after_characters_to_remove; i++) { 
 			strcpy(output_grid[line][center_padding+padding_x+before_length+text_length+2+i], "");
 		}
+
 	}
 
 	line++;
@@ -100,6 +110,9 @@ void output_generate(void) {
 
 	
 	/*  1.INITIALIZE GRID */
+
+	output_lines = cut_output_lines + 2*padding_y + 2; // +2 for border symbols
+
 	// Create the "Canvas", a grid of characters to draw to.
 	char output_grid[output_lines][output_width][32]; // 4 because of unicode character being more than one character long
 	for (int y = 0; y < output_lines; y++) {
@@ -129,6 +142,9 @@ void output_generate(void) {
 
 	/*  3. ADD ALL TOKENS  */
 	for (int i = 0; i < num_tokens; i++) {
+		if (tokens[i].token_type == NEW_LINE && tokens[i+1].token_type != NEW_LINE) {
+			continue;
+		}
 		output_format_token_to_fit(&tokens[i], output_grid);
 	} 
 

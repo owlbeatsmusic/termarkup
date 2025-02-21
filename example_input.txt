@@ -1,12 +1,13 @@
-%c*-abcabcadfsdx
+%c***-abcabcadfsdx
 //%c**-xyxkkl djfgkljfk djgkldfj klgjdkfj gkljdfkl gjkldfjglk jdflkjg kldfjgdfklgjfj
 //%c***-abaa
-//*-aba2
+*-aba2
 
+---
 
 Lorem ipsum dolor sit amet, consectetur.
-%c//+-abaa
+//+-abaa
 //---
 //+-sidearrow sidearrow sidearrow  sidearrow sidearrow sidearrow sidearrow sidearrow
 
-//#$...callout example 2. this is a test.callout example 3. this is a test.callout example 4. this is a test.callout example 5. this is a test.callout example 6. this is a test.callout example 7. this is a test.callout example 8. this is a test.callout example 9. this is a test.
+%c//#$...callout example 2. this is a test.callout example 3. this is a test.callout example 4. this is a test.callout example 5. this is a test.callout example 6. this is a test.callout example 7. this is a test.callout example 8. this is a test.callout example 9. this is a test.

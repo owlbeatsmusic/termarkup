@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common/ajw_bool.h"
 #include "common/ajw_string.h"
 #include "tokenizer.h"
 #include "output.h"
@@ -28,10 +29,13 @@ void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modi
 void tokenizer_tokenize(char *content) {
 
 	int tokens_index = 0;
+
+	Modifier last_modifier = DEFAULT;
+
 	for (int i = 0; i < strlen(content); i++) {
 		
-		TokenType temp_token = TEXT;
-		Modifier temp_modifier = DEFAULT;
+		TokenType temp_token_type = TEXT;
+		Modifier temp_modifier = last_modifier;
 
 		if (str_compare_at_index(content, i, "%c")) {
 			temp_modifier = CENTER;
@@ -39,36 +43,38 @@ void tokenizer_tokenize(char *content) {
 		}
 		if (str_compare_at_index(content, i, "\n")) {
 			tokenizer_add_token(&tokens_index, NEW_LINE, " ", temp_modifier);
-			temp_token = NEW_LINE;
+			temp_token_type = NEW_LINE;
+			cut_output_lines++;	
 		}
 		else if (str_compare_at_index(content, i, "---")) {
 			tokenizer_add_token(&tokens_index, DIVIDER, " ", temp_modifier);
-			temp_token = DIVIDER;
+			temp_token_type = DIVIDER;
 			i += 2;
 		}
 		else if (str_compare_at_index(content, i, "*-") && content[i+2] != '-') {
-			temp_token = HEADING_1;
+			temp_token_type = HEADING_1;
 			i += 2;		
 		} 
 		else if (str_compare_at_index(content, i, "**-") && content[i+3] != '-') {
-			temp_token = HEADING_2;
+			temp_token_type = HEADING_2;
 			i += 3;	
 		}
 		else if (str_compare_at_index(content, i, "***-") && content[i+4] != '-') {
-			temp_token = HEADING_3;
+			temp_token_type = HEADING_3;
 			i += 4;
 		}
 		else if (str_compare_at_index(content, i, "+-")) {
-			temp_token = SIDE_ARROW;
+			temp_token_type = SIDE_ARROW;
 			i += 2;
 			
 		}
 		else if (str_compare_at_index(content, i, "#")) {
-			temp_token = CALLOUT;
+			temp_token_type = CALLOUT;
+			cut_output_lines += 2;
 			i += 1;
 			
 		}
-		if (temp_token != NEW_LINE && temp_token != DIVIDER) {
+		if (temp_token_type != NEW_LINE && temp_token_type != DIVIDER) {
 			char text_buffer[main_max_width];
 			memset(text_buffer, 0, sizeof(text_buffer));
 			
@@ -82,11 +88,15 @@ void tokenizer_tokenize(char *content) {
 					i++;
 					continue;
 				}
-				int before_length = styles[temp_token]->before_length;
-				int after_length  = styles[temp_token]->after_length;
+				int before_length = styles[temp_token_type]->before_length;
+				int after_length  = styles[temp_token_type]->after_length;
 				if (j > cut_output_width - (before_length + after_length)) {
-					output_lines++;
+					cut_output_lines++;
+					last_modifier = temp_modifier;
 					break;
+				}
+				else {
+					last_modifier = DEFAULT;
 				}
 				text_buffer[j] = content[i+j];
 				j++;
@@ -94,10 +104,10 @@ void tokenizer_tokenize(char *content) {
 			text_buffer[strlen(text_buffer)] = '\0';
 			
 			// then append token and continue to next token
-			tokenizer_add_token(&tokens_index, temp_token, text_buffer, temp_modifier);
+			tokenizer_add_token(&tokens_index, temp_token_type, text_buffer, temp_modifier);
 			i += strlen(text_buffer)-1;
+			//output_lines++;	
 		}
-		output_lines++;	
 	}
 	num_tokens = tokens_index;
 }

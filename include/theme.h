@@ -6,6 +6,7 @@
 #include "common/ajw_bool.h"
 #include "tokenizer.h"
 
+#define MAX_STYLES 8
 
 typedef struct {
 	TokenType token;
@@ -14,7 +15,7 @@ typedef struct {
 	int before_length;
 	int after_length;
 	
-	char *sheet[8];
+	char *sheet[MAX_STYLES];
 } Style;
 
 extern Style *styles[];
@@ -25,6 +26,7 @@ extern Style side_arrow_style;
 extern Style divider_style;
 extern Style callout_style;
 extern Style text_style;
+extern Style new_line_style;
 
 extern const int max_theme_key_size;
 extern const int max_theme_value_size;

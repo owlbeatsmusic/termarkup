@@ -7,8 +7,9 @@
 #include "tokenizer.h"
 #include "theme.h"
 
+#define MAX_STYLES 8
 
-Style *styles[7];
+Style *styles[MAX_STYLES];
 Style h1_style = {HEADING_1, "&= ", " =&", 3, 3, {NULL}};
 Style h2_style = {HEADING_2, "&&= ", " =&&", 4, 4, {NULL}};
 Style h3_style = {HEADING_3, "&&&= ", " =&&&", 5, 5, {NULL}};
@@ -16,12 +17,14 @@ Style side_arrow_style = {SIDE_ARROW, "> ", "", 2, 0, {NULL}};
 Style divider_style = {DIVIDER, "~", "", 1, 0, {NULL}};
 Style callout_style = {CALLOUT, "", "", 0, 0, {"-", "|", ".", ".", ".", "'", "'", "'"}};
 Style text_style = {TEXT, "", "", 0, 0, {NULL}};
+Style new_line_style = {NEW_LINE, "", "", 0, 0, {NULL}};
+
 
 const int max_theme_key_size = 64;
 const int max_theme_value_size = 256;
 
 int padding_x = 5; // error(28, 25, 22, 20)
-int padding_y = 2;
+int padding_y = 3;
 Bool border_bool = TRUE;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 //char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};

@@ -12,6 +12,7 @@
 
 Bool non_ascii_found_bool = FALSE;
 unsigned int output_width;
+unsigned int cut_output_width;
 unsigned int output_lines;
 unsigned int output_index = 0;
 char *output;
@@ -34,13 +35,43 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
 
 
+	// BEFORE & AFTER VARIABLES
+	int before_length = styles[token->token_type]->before_length;
+	int after_length  = styles[token->token_type]->after_length;
+
+
 	/*  BEFORE  */
 	// set the first index on the screen grid to the before string and remove spaces to compensate
-	strcpy(output_grid[line][padding_x+1], styles[token->token_type]->before);
-	int before_characters_to_remove = styles[token->token_type]->before_length - 1; // -1 because the previous index has the whole before string
-	for (int i = 0; i < before_characters_to_remove; i++) { 
-		strcpy(output_grid[line][padding_x+2+i], "");
+	if (before_length > 0) {
+		strcpy(output_grid[line][padding_x+1], styles[token->token_type]->before);
+		int before_characters_to_remove = before_length - 1; // -1 because the previous index has the whole before string
+		for (int i = 0; i < before_characters_to_remove; i++) { 
+			strcpy(output_grid[line][padding_x+2+i], "");
+		}
 	}
+
+
+	/*  TEXT  */
+	int text_length = cut_output_width - (before_length + after_length);
+	if (text_length >= strlen(token->content)) {
+		text_length = strlen(token->content);
+	}
+	for (int i = 0; i < text_length & i < text_length; i++) { 
+		output_grid[line][padding_x+before_length+1+i][0] = token->content[i];
+		output_grid[line][padding_x+before_length+1+i][1] = '\0';
+	}
+
+
+	/*  AFTER  */
+	if (styles[token->token_type]->after_length > 0) {
+		strcpy(output_grid[line][padding_x+before_length+text_length+1], styles[token->token_type]->after);
+		int after_characters_to_remove = after_length - 1; // -1 because the previous index has the whole before string
+		printf("after=%d\n", after_characters_to_remove);
+		for (int i = 0; i < after_characters_to_remove; i++) { 
+			strcpy(output_grid[line][padding_x+before_length+text_length+2], "");
+		}
+	}
+
 
 	line++;
 }

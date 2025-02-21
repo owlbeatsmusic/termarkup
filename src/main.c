@@ -85,6 +85,11 @@ int main(int argc, char *argv[]) {
 		fclose(output_file);
 		return -1;
 	}
+
+	// output width of the document (=minus padding and border symbol on both sides ) 
+	// needs to sbe set before tokenizing
+	cut_output_width = output_width - 2*padding_x - 2;
+
 	tokenizer_tokenize(input_file_content);
 	free(input_file_content);
 

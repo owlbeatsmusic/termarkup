@@ -8,7 +8,7 @@
 
 
 typedef struct {
-	Token token;
+	TokenType token;
 	char *before;
 	char *after;
 	int before_length;

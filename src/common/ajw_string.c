@@ -13,17 +13,19 @@ int str_compare_at_index(char *content, int index, char* compare) {
 }
 
 
+// TODO: CALLOUT DIV BETER SIG INTE SOM DEN SKA VID OLIKA WIDTH
 char *str_create_divider(int length, char *symbol) {
-	char *div = (char *)malloc((length) * (strlen(symbol)) * sizeof(char));
+    int symbol_length = strlen(symbol);
+	char *div = (char*)malloc((length + 1) * symbol_length * sizeof(char));
 	if (div == NULL) {
 		printf("%s failed to allocate memory for \"div\"\n", error_print);
 		return NULL;
 	}
-	memset(div, 0, (length) * (strlen(symbol)));
+    memset(div, 0, (length + 1) * symbol_length * sizeof(char)); 
 	for (int i = 0; i < length; i++) {
-		strcpy(div+(i*strlen(symbol)), symbol);
+		strcpy(div+(i*symbol_length), symbol);
 	}
-	div[length * strlen(symbol)] = '\0';
+	div[length * symbol_length] = '\0';
 	return div;	
 }
 

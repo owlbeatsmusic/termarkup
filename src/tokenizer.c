@@ -1,20 +1,22 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "common/ajw_string.h"
 #include "tokenizer.h"
 #include "output.h"
+#include "theme.h"
 #include "main.h"
 
 
 const int max_tokens = 512;
 int num_tokens = 0;
-TokenContent tokens[max_tokens];
-TokenContent new_line_token_default = {TEXT, " ", DEFAULT};
+Token tokens[max_tokens];
+Token new_line_token_default = {TEXT, " ", DEFAULT};
 
 
-void tokenizer_add_token(int *tokens_index, Token token, char *content, Modifier modifier) {
-	tokens[*tokens_index].token = token;
+void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modifier modifier) {
+	tokens[*tokens_index].token_type = token;
 	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
 	strcpy(tokens[*tokens_index].content, content);
 	tokens[*tokens_index].content[strlen(content)] = '\0';
@@ -28,7 +30,7 @@ void tokenizer_tokenize(char *content) {
 	int tokens_index = 0;
 	for (int i = 0; i < strlen(content); i++) {
 		
-		Token temp_token = TEXT;
+		TokenType temp_token = TEXT;
 		Modifier temp_modifier = DEFAULT;
 
 		if (str_compare_at_index(content, i, "%c")) {
@@ -80,7 +82,10 @@ void tokenizer_tokenize(char *content) {
 					i++;
 					continue;
 				}
-				if (j > output_width) output_lines++;
+				if (j > output_width) {
+					output_lines++;
+					break;
+				}
 				text_buffer[j] = content[i+j];
 				j++;
 			}

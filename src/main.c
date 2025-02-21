@@ -88,18 +88,22 @@ int main(int argc, char *argv[]) {
 	tokenizer_tokenize(input_file_content);
 	free(input_file_content);
 
+	
+
 	// generate output and create finish up
 	output_generate();
-	if (output == NULL) {
-		printf("%s failed to allocate memory for \"output\" (generation failed)\n", error_print);
-		fclose(output_file);
-		return -1;
-    	} 
-	output[strlen(output)] = '\0';
-	fprintf(output_file, "%s", output);
-	printf("%s output:\n%s\n", debug_print, output);
+	//if (output == NULL) {
+	//	printf("%s failed to allocate memory for \"output\" (generation failed)\n", error_print);
+	//	fclose(output_file);
+	//	return -1;
+    //	} 
+	//output[strlen(output)] = '\0';
+	//fprintf(output_file, "%s", output);
+	//printf("%s output:\n%s\n", debug_print, output);
 	fclose(output_file);
-	free((void*)output);
+	//free((void*)output);
+
+	
 
 	if (theme_file_path != NULL) {
 		for (int i = 0; i < 6; i++) {
@@ -113,6 +117,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	
 
 	// done
 	printf("%s termarkup file outputted (%s)\n", done_print, output_file_path);

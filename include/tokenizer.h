@@ -18,21 +18,21 @@ typedef enum {
 
 	NEW_LINE,
 	END_FILE,
-} Token;
+} TokenType;
 
 typedef struct {
-	Token token;
+	TokenType token_type;
 	char *content;
 	Modifier modifier;
 
-} TokenContent;
+} Token;
 
 extern const int max_tokens;
 extern int num_tokens;
 
-extern TokenContent tokens[];
+extern Token tokens[];
 
-extern TokenContent new_line_token_default;
+extern Token new_line_token_default;
 
 
 extern void tokenizer_tokenize(char *content);

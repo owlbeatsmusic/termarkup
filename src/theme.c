@@ -20,7 +20,7 @@ Style text_style = {TEXT, "", "", 0, 0, {NULL}};
 const int max_theme_key_size = 64;
 const int max_theme_value_size = 256;
 
-int padding_x = 7;
+int padding_x = 5; // error(28, 25, 22, 20)
 int padding_y = 2;
 Bool border_bool = TRUE;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
@@ -29,8 +29,7 @@ char *before_padding;
 char *after_padding;
 
 
-void theme_set_token_style(Token token, char *value) {
-	
+void theme_set_token_style(TokenType token, char *value) {
 	int quotation_indicies[32];
 	int j = 0;
 	for (int i = 0; i < strlen(value); i++) {
@@ -112,7 +111,7 @@ void theme_set(char *content) {
 			char value[max_theme_value_size];
 			strncpy(value, content + equal_sign_index+1, i-equal_sign_index-1);
 			
-			//Token temp_token;
+			//TokenType temp_token;
 			if (str_compare_at_index(key, 0, "heading_1"))  theme_set_token_style(HEADING_1, value);
 			if (str_compare_at_index(key, 0, "heading_2"))  theme_set_token_style(HEADING_2, value);
 			if (str_compare_at_index(key, 0, "heading_3"))  theme_set_token_style(HEADING_3, value);

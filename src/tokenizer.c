@@ -82,7 +82,9 @@ void tokenizer_tokenize(char *content) {
 					i++;
 					continue;
 				}
-				if (j > cut_output_width-1) {
+				int before_length = styles[temp_token]->before_length;
+				int after_length  = styles[temp_token]->after_length;
+				if (j > cut_output_width - (before_length + after_length)) {
 					output_lines++;
 					break;
 				}

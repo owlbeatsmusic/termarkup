@@ -26,70 +26,90 @@ void output_append(char *string) {
 }
 
 void output_format_token_to_fit(Token *token, char output_grid[output_lines][output_width][32]) {
+
+	/* structure of function
+		1. VARIABLES - LENGTHS & PADDINGS
+		2. OUTPUT GENERATION
+			2.1 LEFT & RIGHT BORDER
+			2.2 BEFORE
+			2.3 TEXT
+			2.4 AFTER
+	*/
+	
 	if (token->token_type == NEW_LINE) {
 		return;
 	}
 
-	/*  LEFT & RIGHT BORDER  */
+	// 1. LENGTHS & PADDINGS
+	int before_length = styles[token->token_type]->before_length;
+	int after_length  = styles[token->token_type]->after_length;
+	int text_length   = cut_output_width - (before_length + after_length);
+	if (text_length >= strlen(token->content)) {
+		text_length = strlen(token->content);
+	}
+	int total_line_empty_space = cut_output_width-text_length-before_length-after_length;
+	int center_padding = 0;
+	if (token->modifier == CENTER) center_padding = floor((double)total_line_empty_space/2); // floor because it looks better with the smaller gap in front
+
+
+
+	/*  2.1 LEFT & RIGHT BORDER  */
 	strcpy(output_grid[line][padding_x], border_sheet[1]);				  // left
 	strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
 
 
-	// BEFORE & AFTER VARIABLES
-	int before_length = styles[token->token_type]->before_length;
-	int after_length  = styles[token->token_type]->after_length;
-
-
-	/*  BEFORE  */
+	/*  2.2 BEFORE  */
 	// set the first index on the screen grid to the before string and remove spaces to compensate
 	if (before_length > 0) {
-		strcpy(output_grid[line][padding_x+1], styles[token->token_type]->before);
+		strcpy(output_grid[line][center_padding+padding_x+1], styles[token->token_type]->before);
 		int before_characters_to_remove = before_length - 1; // -1 because the previous index has the whole before string
 		for (int i = 0; i < before_characters_to_remove; i++) { 
-			strcpy(output_grid[line][padding_x+2+i], "");
+			strcpy(output_grid[line][center_padding+padding_x+2+i], "");
 		}
 	}
 
 
-	/*  TEXT  */
-	int text_length = cut_output_width - (before_length + after_length);
-	if (text_length >= strlen(token->content)) {
-		text_length = strlen(token->content);
-	}
+	/*  2.3 TEXT  */
 	for (int i = 0; i < text_length & i < text_length; i++) { 
-		output_grid[line][padding_x+before_length+1+i][0] = token->content[i];
-		output_grid[line][padding_x+before_length+1+i][1] = '\0';
+		output_grid[line][center_padding + padding_x+before_length+1+i][0] = token->content[i];
+		output_grid[line][center_padding + padding_x+before_length+1+i][1] = '\0';
 	}
 
 
-	/*  AFTER  */
+	/*  2.4 AFTER  */
 	if (styles[token->token_type]->after_length > 0) {
-		strcpy(output_grid[line][padding_x+before_length+text_length+1], styles[token->token_type]->after);
+		strcpy(output_grid[line][center_padding+padding_x+before_length+1+text_length], styles[token->token_type]->after);
 		int after_characters_to_remove = after_length - 1; // -1 because the previous index has the whole before string
-		printf("after=%d\n", after_characters_to_remove);
 		for (int i = 0; i < after_characters_to_remove; i++) { 
-			strcpy(output_grid[line][padding_x+before_length+text_length+2], "");
+			strcpy(output_grid[line][center_padding+padding_x+before_length+text_length+2+i], "");
 		}
 	}
-
 
 	line++;
 }
 
 
 void output_generate(void) {
+
+	/* structure of function
+		1. INITIALIZE GRID
+		2. CREATE BORDER
+		3. OUTPUT THE TOKENS WITH FORMATTING
+		4. PRINT OUTPUT
+	*/
+
 	
-	/*  INITIALIZE  */
+	/*  1.INITIALIZE GRID */
 	// Create the "Canvas", a grid of characters to draw to.
 	char output_grid[output_lines][output_width][32]; // 4 because of unicode character being more than one character long
 	for (int y = 0; y < output_lines; y++) {
 		for (int x = 0; x < output_width; x++) { // +1 for safety when setting border right corners
-			strcpy(output_grid[y][x], ".");
+			strcpy(output_grid[y][x], " ");
  		}
 	}
 
 
-	/*  BORDER  */
+	/*  2. BORDER  */
 	if (border_bool == TRUE) {
 
 		// corner symbols
@@ -107,13 +127,13 @@ void output_generate(void) {
 
 	line = padding_y + 1; //one below top border 
 
-	/*  ADD ALL TOKENS  */
+	/*  3. ADD ALL TOKENS  */
 	for (int i = 0; i < num_tokens; i++) {
 		output_format_token_to_fit(&tokens[i], output_grid);
 	} 
 
 
-	/* PRINT OUTPUT  */
+	/* 4. PRINT OUTPUT  */
 	for (int y = 0; y < output_lines; y++) {
 		for (int x = 0; x < output_width; x++) { // +1 for safety when setting border right corners
 			printf("%s", output_grid[y][x]);
@@ -121,5 +141,4 @@ void output_generate(void) {
 		printf("\n");
 	}
 
-	printf("%d   lines\n", output_lines);
 }

@@ -49,13 +49,32 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	if (token->modifier == CENTER) center_padding = floor((double)total_line_empty_space/2); // floor because it looks better with the smaller gap in front
 
 
-
 	/*  2.1 LEFT & RIGHT BORDER  */
 	strcpy(output_grid[line][padding_x], border_sheet[1]);				  // left
 	strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
 
+	printf("first_line=%d\n", token->is_first_line);
 
 	/*  2.2 BEFORE  */
+
+	// store and clear before and after if not first line of token
+	char temp_before[MAX_BEFORE_AFTER_LENGTH];
+	char temp_after[MAX_BEFORE_AFTER_LENGTH];
+	if (token->is_first_line == FALSE) {
+		if (token->token_type != NEW_LINE | token->token_type != DIVIDER | token->token_type != CALLOUT | token->token_type != TEXT) {
+			strcpy(temp_before, styles[token->token_type]->before);
+			strcpy(temp_after, styles[token->token_type]->after);
+
+			for (int i = 0; i < before_length; i++) {
+				styles[token->token_type]->before[i] = ' ';
+			}
+			for (int i = 0; i < after_length; i++) {
+				styles[token->token_type]->after[i] = ' ';
+			}
+		}
+	}
+	
+
 	// set the first index on the screen grid to the before string and remove spaces to compensate
 	if (before_length > 0) {
 		strcpy(output_grid[line][center_padding+padding_x+1], styles[token->token_type]->before);
@@ -74,6 +93,9 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 		for (int i = 0; i < cut_output_width; i++) {
 			strcpy(output_grid[line][padding_x+1+i], divider_style.before);
 		}
+	}
+	else if (token->token_type == CALLOUT) {
+
 	}
 	else {
 		for (int i = 0; i < text_length & i < text_length; i++) { 
@@ -94,6 +116,22 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 		}
 
 	}
+
+	
+	//  (2.5 RE-SET BEFORE AND AFTER)
+	if (token->is_first_line == FALSE) {
+		if (token->token_type != NEW_LINE | token->token_type != DIVIDER | token->token_type != CALLOUT | token->token_type != TEXT) {
+			for (int i = 0; i < strlen(temp_before); i++) {
+				styles[token->token_type]->before[i] = temp_before[i];
+			}
+			for (int i = 0; i < strlen(temp_before); i++) {
+				styles[token->token_type]->after[i] = temp_after[i];
+			}
+		}
+
+	}
+	
+	
 
 	line++;
 }

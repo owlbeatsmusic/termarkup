@@ -7,6 +7,7 @@
 #include "tokenizer.h"
 
 #define MAX_STYLES 8
+#define MAX_BEFORE_AFTER_LENGTH 32
 
 typedef struct {
 	TokenType token;

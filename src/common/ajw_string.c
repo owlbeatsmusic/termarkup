@@ -31,7 +31,7 @@ char *str_create_divider(int length, char *symbol) {
 
 
 char *str_get_string_between_quotations(char *value, int quotation_indicies[], int from, int to) {
-	char *string = (char*)malloc(16 * sizeof(char));
+	char *string = (char*)malloc(32 * sizeof(char));
 	strncpy(string, value + quotation_indicies[from]+1, quotation_indicies[to]-quotation_indicies[from]-1);		
 	string[quotation_indicies[to]-quotation_indicies[from]] = '\0';
 	return string;

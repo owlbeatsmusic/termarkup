@@ -7,8 +7,6 @@
 #include "tokenizer.h"
 #include "theme.h"
 
-#define MAX_STYLES 8
-
 Style *styles[MAX_STYLES];
 Style h1_style = {HEADING_1, "&= ", " =&", 3, 3, {NULL}};
 Style h2_style = {HEADING_2, "&&= ", " =&&", 4, 4, {NULL}};

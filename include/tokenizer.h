@@ -24,7 +24,7 @@ typedef struct {
 	TokenType token_type;
 	char *content;
 	Modifier modifier;
-
+	Bool is_first_line;
 } Token;
 
 extern const int max_tokens;

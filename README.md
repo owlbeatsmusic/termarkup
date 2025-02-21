@@ -164,13 +164,13 @@ The first two strings are the **before** and **after**. Before is the string tha
 > Remember to change the before and after length when chaning the before and after strings.
 
 **Divider**</br>
-For the divider you do not have to specify the length but in you can only have **one** symbol (altough it can be a symbol with length of multiple charcter).
+For the divider you do not have to specify the length but in you can only have **one** symbol (altough it can be a symbol with length of multiple characters such as a unicode character).
 ```
 divider = ["-"]
 ```
 
 **Callout**</br>
-For callouts there is a form of sheet that you modify. As with dividers you can only **one** symbol per value.
+For callouts there is a form of sheet that you modify. As with dividers you can only **one** symbol per value (here to it can be a symbol with length of multiple characters such as a unicode character)..
 ```
 callout    = ["━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"]
 ```

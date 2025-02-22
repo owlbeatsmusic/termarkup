@@ -1,3 +1,5 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -10,21 +12,13 @@
 #include "output.h"
 
 
-Bool non_ascii_found_bool = FALSE;
-unsigned int output_width;
-unsigned int cut_output_width;
-unsigned int output_lines;
-unsigned int cut_output_lines;
-unsigned int output_index = 0;
-char *output;
+bool non_ascii_found_bool = false;
+uint16_t output_width;
+uint16_t cut_output_width;
+uint16_t output_lines;
+uint16_t cut_output_lines;
 
-int line = 0;
-
-void output_append(char *string) {
-	output_index += strlen(string);
-	strncat(output, string, output_index);
-	return;
-}
+uint16_t line = 0;
 
 void output_format_token_to_fit(Token *token, char output_grid[output_lines][output_width][32]) {
 
@@ -40,10 +34,16 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	// 1. LENGTHS & PADDINGS
 	int before_length = styles[token->token_type]->before_length;
 	int after_length = styles[token->token_type]->after_length;
+	if (token->token_type == CALLOUT & token->is_first_line == 0) {
+		before_length = 7;
+		after_length = 1;
+	}
+
 	int text_length = cut_output_width - (before_length + after_length);
 	if (text_length >= strlen(token->content)) {
 		text_length = strlen(token->content);
 	}
+
 	int total_line_empty_space = cut_output_width-text_length-before_length-after_length;
 	int center_padding = 0;
 	if (token->modifier == CENTER) center_padding = floor((double)total_line_empty_space/2); // floor because it looks better with the smaller gap in front
@@ -53,21 +53,21 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	strcpy(output_grid[line][padding_x], border_sheet[1]);				  // left
 	strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
 
-	printf("first_line=%d\n", token->is_first_line);
-
 	/*  2.2 BEFORE  */
 
 	// store and clear before and after if not first line of token
 	char temp_before[MAX_BEFORE_AFTER_LENGTH];
 	char temp_after[MAX_BEFORE_AFTER_LENGTH];
-	if (token->is_first_line == FALSE) {
+	if (token->is_first_line == false) {
 		if (token->token_type != NEW_LINE | token->token_type != DIVIDER | token->token_type != CALLOUT | token->token_type != TEXT) {
 			strcpy(temp_before, styles[token->token_type]->before);
 			strcpy(temp_after, styles[token->token_type]->after);
 
+			if (before_length > 0) styles[token->token_type]->before[before_length] = '\0';
 			for (int i = 0; i < before_length; i++) {
 				styles[token->token_type]->before[i] = ' ';
 			}
+			if (after_length > 0) styles[token->token_type]->after[after_length] = '\0';
 			for (int i = 0; i < after_length; i++) {
 				styles[token->token_type]->after[i] = ' ';
 			}
@@ -86,16 +86,23 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 
 
 	/*  2.3 TEXT / CONTENT  */
-	if (token->token_type == NEW_LINE) {
-
+	if (token->token_type == CALLOUT) {
+		if (token->is_first_line == 1) {
+			strcpy(output_grid[line][padding_x+1], callout_style.sheet[2]);
+			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[3]);
+			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[4]);
+		}
+		if (token->is_first_line == 0) {
+			strcpy(output_grid[line][padding_x+1], callout_style.sheet[1]);
+			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[1]);
+			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[1]);
+		}
 	}
+	if (token->token_type == NEW_LINE) {}
 	else if (token->token_type == DIVIDER) {
 		for (int i = 0; i < cut_output_width; i++) {
 			strcpy(output_grid[line][padding_x+1+i], divider_style.before);
 		}
-	}
-	else if (token->token_type == CALLOUT) {
-
 	}
 	else {
 		for (int i = 0; i < text_length & i < text_length; i++) { 
@@ -119,7 +126,7 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 
 	
 	//  (2.5 RE-SET BEFORE AND AFTER)
-	if (token->is_first_line == FALSE) {
+	if (token->is_first_line == false) {
 		if (token->token_type != NEW_LINE | token->token_type != DIVIDER | token->token_type != CALLOUT | token->token_type != TEXT) {
 			for (int i = 0; i < strlen(temp_before); i++) {
 				styles[token->token_type]->before[i] = temp_before[i];
@@ -161,7 +168,7 @@ void output_generate(void) {
 
 
 	/*  2. BORDER  */
-	if (border_bool == TRUE) {
+	if (border_bool == true) {
 
 		// corner symbols
 		strcpy(output_grid[padding_y][padding_x], border_sheet[2]);								// top-left

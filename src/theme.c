@@ -1,9 +1,9 @@
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "common/ajw_print.h"
 #include "common/ajw_string.h"
-#include "common/ajw_bool.h"
 #include "tokenizer.h"
 #include "theme.h"
 
@@ -18,12 +18,12 @@ Style text_style = {TEXT, "", "", 0, 0, {NULL}};
 Style new_line_style = {NEW_LINE, "", "", 0, 0, {NULL}};
 
 
-const int max_theme_key_size = 64;
-const int max_theme_value_size = 256;
+const uint16_t max_theme_key_size = 64;
+const uint16_t max_theme_value_size = 256;
 
-int padding_x = 5; // error(28, 25, 22, 20)
-int padding_y = 3;
-Bool border_bool = TRUE;
+uint16_t padding_x = 5; // error(28, 25, 22, 20)
+uint16_t padding_y = 3;
+bool border_bool = true;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 //char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
 char *before_padding;
@@ -88,14 +88,14 @@ void theme_set(char *content) {
 	//int line = 0;
 	int start_of_line_index = 0;
 	int equal_sign_index = 0;
-	Bool first_equal_sign_bool = FALSE;
+	bool first_equal_sign_bool = false;
 
 	for (int i = 0; i < strlen(content); i++) {
-		if (content[i] == '=' & first_equal_sign_bool == FALSE) {
-			first_equal_sign_bool = TRUE;	
+		if (content[i] == '=' & first_equal_sign_bool == false) {
+			first_equal_sign_bool = true;	
 			equal_sign_index = i;
 		}
-		if (content[i] == '\n' & first_equal_sign_bool == TRUE) {
+		if (content[i] == '\n' & first_equal_sign_bool == true) {
 
 			char key[max_theme_key_size];
 			memset(key, 0, max_theme_key_size);
@@ -122,7 +122,7 @@ void theme_set(char *content) {
 			
 			//line++;
 			equal_sign_index = 0;
-			first_equal_sign_bool = FALSE;
+			first_equal_sign_bool = false;
 			if (i+1 < strlen(content)) start_of_line_index =  i+1;
 		}
 		else if (content[i] == '\n') {

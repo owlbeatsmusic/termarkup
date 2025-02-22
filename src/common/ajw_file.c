@@ -7,7 +7,7 @@
 char *file_to_string(char *file_path) {
 	FILE *file = fopen(file_path, "r");
 	if (file == NULL) {
-		printf("%s failed to open file(%s)\n", error_print, file_path);
+		printf("%s failed to open file(%s)\n", PRINT_ERROR, file_path);
 		return NULL;
 	}
 	fseek(file, 0, SEEK_END);
@@ -17,7 +17,7 @@ char *file_to_string(char *file_path) {
 	char *file_content = (char *)malloc(file_size + 1);
 	if (file_content == NULL) {
 		fclose(file);
-		printf("%s failed to allocate memory for contents of \"%s\"\n", error_print, file_path);
+		printf("%s failed to allocate memory for contents of \"%s\"\n", PRINT_ERROR, file_path);
 		return NULL;
 	}
 	file_content[file_size] = '\0';
@@ -26,7 +26,7 @@ char *file_to_string(char *file_path) {
 	if (file_read_size != file_size) {
 		free(file_content);
 		fclose(file);
-		printf("%s failed to read file (%s)\n", error_print, file_path);
+		printf("%s failed to read file (%s)\n", PRINT_ERROR, file_path);
 		return NULL;
 	}
 	fclose(file);

@@ -1,8 +1,8 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/ajw_bool.h"
 #include "common/ajw_string.h"
 #include "tokenizer.h"
 #include "output.h"
@@ -10,13 +10,13 @@
 #include "main.h"
 
 
-const int max_tokens = 512;
-int num_tokens = 0;
+const uint16_t max_tokens = 512;
+uint16_t num_tokens = 0;
 Token tokens[max_tokens];
 Token new_line_token_default = {TEXT, " ", DEFAULT};
 
 
-void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modifier modifier, Bool is_first_line) {
+void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modifier modifier, bool is_first_line) {
 	tokens[*tokens_index].token_type = token;
 	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
 	strcpy(tokens[*tokens_index].content, content);
@@ -33,28 +33,28 @@ void tokenizer_tokenize(char *content) {
 
 	TokenType last_token_type = TEXT;
 	Modifier last_modifier = DEFAULT;
-	Bool temp_next_is_first_line = TRUE;
+	bool temp_next_is_first_line = true;
 
 	for (int i = 0; i < strlen(content); i++) {
 		
 		TokenType temp_token_type = TEXT;
 		Modifier temp_modifier = last_modifier;
-		Bool temp_is_first_line = TRUE;
+		bool temp_is_first_line = true;
 
 		if (str_compare_at_index(content, i, "%c")) {
 			temp_modifier = CENTER;
 			i += 2;
 		}
 		if (str_compare_at_index(content, i, "\n")) {
-			tokenizer_add_token(&tokens_index, NEW_LINE, " ", temp_modifier, TRUE);
+			tokenizer_add_token(&tokens_index, NEW_LINE, " ", temp_modifier, true);
 			temp_token_type = NEW_LINE;
-			temp_next_is_first_line = TRUE;
+			temp_next_is_first_line = true;
 			cut_output_lines++;	
 		}
 		else if (str_compare_at_index(content, i, "---")) {
-			tokenizer_add_token(&tokens_index, DIVIDER, " ", temp_modifier, TRUE);
+			tokenizer_add_token(&tokens_index, DIVIDER, " ", temp_modifier, true);
 			temp_token_type = DIVIDER;
-			temp_next_is_first_line = TRUE;
+			temp_next_is_first_line = true;
 			i += 2;
 		}
 		else if (str_compare_at_index(content, i, "*-") && content[i+2] != '-') {
@@ -88,13 +88,19 @@ void tokenizer_tokenize(char *content) {
 			// actual text of a header for example)
 			int j = 0;
 			while (content[i+j] != '\n') {
+
+				// TODO: you have tot remove this, but it makes the program stop working
+				if (temp_token_type == CALLOUT & temp_next_is_first_line == true) {
+					break;
+				}
+				
 				if (content[i+j] > 127 | content[i+j] < 0) { 
-					non_ascii_found_bool = TRUE;
+					non_ascii_found_bool = true;
 					i++;
 					continue;
 				}
 
-				if (temp_next_is_first_line == FALSE) {
+				if (temp_next_is_first_line == false) {
 					temp_is_first_line = temp_next_is_first_line;
 					temp_token_type = last_token_type;
 				}
@@ -105,13 +111,13 @@ void tokenizer_tokenize(char *content) {
 					cut_output_lines++;
 					last_token_type = temp_token_type;
 					last_modifier = temp_modifier;
-					temp_next_is_first_line = FALSE;
+					temp_next_is_first_line = false;
 					break;
 				}
 				else {
 					last_token_type = TEXT;
 					last_modifier = DEFAULT;
-					temp_next_is_first_line = TRUE;
+					temp_next_is_first_line = true;
 				}
 				text_buffer[j] = content[i+j];
 				j++;
@@ -124,7 +130,6 @@ void tokenizer_tokenize(char *content) {
 			//output_lines++;	
 		}
 	}
-	cut_output_lines++;
-	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, TRUE);
+	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, true);
 	num_tokens = tokens_index;
 }

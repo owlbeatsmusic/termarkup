@@ -4,15 +4,12 @@
 
 #include "common/ajw_file.h"
 #include "common/ajw_print.h"
-#include "common/ajw_bool.h"
 #include "tokenizer.h"
 #include "output.h"
 #include "theme.h"
 
-
-const int main_max_width = 512;
-const int main_min_width = 10;
-
+const uint16_t main_max_width = 512;
+const uint16_t main_min_width = 10;
 
 int main(int argc, char *argv[]) {
 	
@@ -36,16 +33,16 @@ int main(int argc, char *argv[]) {
 	char *theme_file_path;
 	if (argc > 3) theme_file_path  = argv[4];
 	
-	if (sscanf(argv[3], "%d", &output_width) != 1) {
-		printf("%s could not convert third argument to int (use -help)\n", error_print);
+	if (sscanf(argv[3], "%hd", &output_width) != 1) {
+		printf("%s could not convert third argument to int (use -help)\n", PRINT_ERROR);
 		return -1;
 	}
 	if (output_width > main_max_width) {
-		printf("%s width is too large. maximum is %d\n", error_print, main_max_width);
+		printf("%s width is too large. maximum is %d\n", PRINT_ERROR, main_max_width);
 		return -1;
 	}
 	if (output_width < main_min_width) {
-		printf("%s width is too small. minimum is %d\n", error_print, main_min_width);
+		printf("%s width is too small. minimum is %d\n", PRINT_ERROR, main_min_width);
 		return -1;
 	}
 	
@@ -54,9 +51,9 @@ int main(int argc, char *argv[]) {
 	// reading the input file
 
 	// open output file before starting
-        FILE *output_file = fopen(output_file_path, "w");
+    FILE *output_file = fopen(output_file_path, "w");
 	if (output_file == NULL) {
-		printf("%s failed to open output file(%s)\n", error_print, output_file_path);
+		printf("%s failed to open output file(%s)\n", PRINT_ERROR, output_file_path);
 		return -1;
 	}
 
@@ -73,6 +70,7 @@ int main(int argc, char *argv[]) {
 	if (theme_file_path != NULL) { 
 		char *theme_file_content = file_to_string(theme_file_path);
 		if (theme_file_content == NULL) {
+			printf("%s failed to open theme file(%s)\n", PRINT_ERROR, theme_file_path);
 			fclose(output_file);
 			return -1;
 		}
@@ -83,6 +81,7 @@ int main(int argc, char *argv[]) {
 	// read input file and tokenize
 	char *input_file_content = file_to_string(input_file_path); 
 	if (input_file_content == NULL) {
+		printf("%s failed to open input file(%s)\n", PRINT_ERROR, theme_file_path);
 		fclose(output_file);
 		return -1;
 	}
@@ -97,7 +96,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if (cut_output_width < largest_before_and_after_length) {
-		printf("%s total document width is too small. change either x-padding or output width. \n", error_print);
+		printf("%s total document width is too small. change either x-padding or output width. \n", PRINT_ERROR);
 		free(input_file_content);
 		fclose(output_file);
 		if (theme_file_path != NULL) {
@@ -116,9 +115,6 @@ int main(int argc, char *argv[]) {
 
 	tokenizer_tokenize(input_file_content);
 	free(input_file_content);
-
-	printf("lines=%d\n", output_lines);
-	//if (padding_y*2 >= output_lines) output_lines = padding_y*2 + 1;
 
 	// generate output and create finish up
 	output_generate();
@@ -141,7 +137,7 @@ int main(int argc, char *argv[]) {
 	
 
 	// done
-	printf("%s termarkup file outputted (%s)\n", done_print, output_file_path);
-	if(non_ascii_found_bool == TRUE) printf("%s one or more non-ascii charcters were found and was removed\n", warning_print);
+	printf("%s termarkup file outputted (%s)\n", PRINT_DONE, output_file_path);
+	if(non_ascii_found_bool == true) printf("%s one or more non-ascii charcters were found and was removed\n", PRINT_WARNING);
 	return 0;
 }

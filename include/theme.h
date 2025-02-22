@@ -2,8 +2,8 @@
 #define THEME_H_
 
 #include <stdlib.h>
+#include <stdint.h>
 
-#include "common/ajw_bool.h"
 #include "tokenizer.h"
 
 #define MAX_STYLES 8
@@ -13,8 +13,8 @@ typedef struct {
 	TokenType token;
 	char *before;
 	char *after;
-	int before_length;
-	int after_length;
+	uint8_t before_length;
+	uint8_t after_length;
 	
 	char *sheet[MAX_STYLES];
 } Style;
@@ -29,12 +29,12 @@ extern Style callout_style;
 extern Style text_style;
 extern Style new_line_style;
 
-extern const int max_theme_key_size;
-extern const int max_theme_value_size;
+extern const uint16_t max_theme_key_size;
+extern const uint16_t max_theme_value_size;
 
-extern int padding_x;
-extern int padding_y;
-extern Bool border_bool;
+extern uint16_t padding_x;
+extern uint16_t padding_y;
+extern bool border_bool;
 extern char *border_sheet[];
 //char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
 extern char *before_padding;

@@ -52,7 +52,7 @@ consectetur.
 </table>
 
 > [!WARNING]
-> This is the development branch, things are unstable and incomplete.
+> Use release for functional code. Current code is under development.
 
 ## What Is This?
 *A terminal can not display a markdown file correctly*. What I have wanted for a while is a stylized file "format" to make simple plain-text files a bit prettier. The main idea from the beginning being the callout (inspired by notions callouts) which would be a pain to create without this language. It was also important from the start to keep everything minimal and simple.

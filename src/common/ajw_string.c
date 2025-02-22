@@ -18,7 +18,7 @@ char *str_create_divider(int length, char *symbol) {
     int symbol_length = strlen(symbol);
 	char *div = (char*)malloc((length + 1) * symbol_length * sizeof(char));
 	if (div == NULL) {
-		printf("%s failed to allocate memory for \"div\"\n", error_print);
+		printf("%s failed to allocate memory for \"div\"\n", PRINT_ERROR);
 		return NULL;
 	}
     memset(div, 0, (length + 1) * symbol_length * sizeof(char)); 

@@ -1,9 +1,9 @@
 #ifndef PRINT_H_
 #define PRINT_H_
 
-extern const char warning_print[];
-extern const char error_print[];
-extern const char debug_print[];
-extern const char done_print[];
+extern const char PRINT_WARNING[];
+extern const char PRINT_ERROR[];
+extern const char PRINT_DEBUG[];
+extern const char PRINT_DONE[];
 
 #endif

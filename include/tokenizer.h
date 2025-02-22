@@ -1,6 +1,8 @@
 #ifndef TOKENIZER_H_
 #define TOKENIZER_H_
 
+#include <stdint.h>
+
 typedef enum {
 	DEFAULT,
 	CENTER
@@ -24,11 +26,11 @@ typedef struct {
 	TokenType token_type;
 	char *content;
 	Modifier modifier;
-	Bool is_first_line;
+	uint8_t is_first_line; // 0=not  1=first  2=last
 } Token;
 
-extern const int max_tokens;
-extern int num_tokens;
+extern const uint16_t max_tokens;
+extern uint16_t num_tokens;
 
 extern Token tokens[];
 

@@ -9,6 +9,7 @@
         "termarkup": "c",
         "output.h": "c",
         "stdio.h": "c",
-        "theme.h": "c"
+        "theme.h": "c",
+        "stdbool.h": "c"
     }
 }

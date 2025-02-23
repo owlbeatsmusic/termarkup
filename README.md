@@ -163,14 +163,21 @@ The first two strings are the **before** and **after**. Before is the string tha
 > [!IMPORTANT]  
 > Remember to change the before and after length when chaning the before and after strings.
 
+**Callout**</br>
+For the border there is "true"/"false" (remember quotations) for if to show border, x-padding & y-padding, and a form of sheet that you modify. You can only **one** symbol per value (although it can be a symbol with length of multiple characters such as a unicode character).
+```
+border = ["true", 5, 2, "┏", "┓", "┗", "┛"]
+```
+
+
 **Divider**</br>
-For the divider you do not have to specify the length but in you can only have **one** symbol (altough it can be a symbol with length of multiple characters such as a unicode character).
+For the divider you do not have to specify the length but in you can only have **one** symbol (although it can be a symbol with length of multiple characters such as a unicode character).
 ```
 divider = ["-"]
 ```
 
 **Callout**</br>
-For callouts there is a form of sheet that you modify. As with dividers you can only **one** symbol per value (here to it can be a symbol with length of multiple characters such as a unicode character)..
+For callouts there is a form of sheet that you modify. As with dividers you can only **one** symbol per value (here to it can be a symbol with length of multiple characters such as a unicode character).
 ```
 callout    = ["━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"]
 ```

@@ -34,7 +34,7 @@ extern const uint16_t max_theme_value_size;
 
 extern uint16_t padding_x;
 extern uint16_t padding_y;
-extern bool border_bool;
+extern bool show_border;
 extern char *border_sheet[];
 //char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
 extern char *before_padding;

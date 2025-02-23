@@ -50,8 +50,10 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 
 
 	/*  2.1 LEFT & RIGHT BORDER  */
-	strcpy(output_grid[line][padding_x], border_sheet[1]);				  // left
-	strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
+	if (show_border == true) {
+		strcpy(output_grid[line][padding_x], border_sheet[1]);				  // left
+		strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
+	}
 
 	/*  2.2 BEFORE  */
 
@@ -137,8 +139,6 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 		}
 
 	}
-	
-	
 
 	line++;
 }
@@ -168,7 +168,7 @@ void output_generate(void) {
 
 
 	/*  2. BORDER  */
-	if (border_bool == true) {
+	if (show_border == true) {
 
 		// corner symbols
 		strcpy(output_grid[padding_y][padding_x], border_sheet[2]);								// top-left

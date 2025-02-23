@@ -20,6 +20,9 @@ typedef enum {
 
 	NEW_LINE,
 	END_FILE,
+	
+	BORDER,  // not actually a token type but works as one when reading theme file
+
 } TokenType;
 
 typedef struct {

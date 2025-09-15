@@ -12,8 +12,8 @@
 /*
 
 	TODO:
-	 	- Bus error when multiple lines of token (e.g. sidearrow) is generated
-		- Callout bordet does not work
+	 	- Strange right side border error when empty lines under callout
+		- Strange errors with end of file (should not need a new line at end of file)
 
 */
 

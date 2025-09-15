@@ -21,10 +21,12 @@
      ┃| # |  Callout                                                     |┃     
      ┃┗---┻--------------------------------------------------------------┛┃     
      ┃┏---┳--------------------------------------------------------------┓┃     
-     ┃| # |  Callout 1callout2callout3callout4callout5callout6callout7ca |┃     
-     ┃|   |  llout8callout9callout0callout                               |┃     
+     ┃| # |  Callout 1callout2callout3callout4calloutcallout6callout7cal |┃     
+     ┃|   |  lout8callout9callout0callout                                |┃     
      ┃┗---┻--------------------------------------------------------------┛┃     
      ┃                                                                   ┃     
+     ┃                                                                    ┃     
+     ┃                                                                    ┃     
      ┃╰ abaa kjsdhfdsfhjkdshfhdsjkfdkshfjkdshjkfhdsjkhfkjdshjkfhdskjhfkjd ┃     
      ┃  shfkdshjkfdhskjfhdskjkjsdhf kjhdsfjkh kdjshfj hdsjkfhd kjshfjk ds ┃     
      ┃  hjkfh jksdhfkj dshfkj hdskjfh djksjk                              ┃     
@@ -32,9 +34,7 @@
      ┃┏---┳--------------------------------------------------------------┓┃     
      ┃| # |  Callout                                                     |┃     
      ┃┗---┻--------------------------------------------------------------┛┃     
-     ┃//---                                                               ┃     
-     ┃╰ sidearrow sidearr                                                 ┃     
-                                                                                
-     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     
+     ┃                                                                   ┃     
+     ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃     
                                                                                 
                                                                                 

@@ -137,10 +137,13 @@ void tokenizer_tokenize(char *content) {
 			}
 			
 			i += strlen(text_buffer)-1;
-			//output_lines++;	
+			
 		}
 	}
-	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, true);
+
+	// fix for end of file
+	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, 1);
+	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, 1);
 	num_tokens = tokens_index;
 
 	// TODO: why this line? Probably because of first or last line of file not adding to total output lines.

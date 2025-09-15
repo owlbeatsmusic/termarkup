@@ -10,13 +10,13 @@
 #include "main.h"
 
 
-const uint16_t max_tokens = 512;
+const uint16_t max_tokens = 64;
 uint16_t num_tokens = 0;
 Token tokens[max_tokens];
 Token new_line_token_default = {TEXT, " ", DEFAULT};
 
 
-void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modifier modifier, bool is_first_line) {
+void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modifier modifier, uint8_t is_first_line) {
 	tokens[*tokens_index].token_type = token;
 	tokens[*tokens_index].content = (char *)malloc(strlen(content)+1);
 	strcpy(tokens[*tokens_index].content, content);
@@ -33,7 +33,7 @@ void tokenizer_tokenize(char *content) {
 
 	TokenType last_token_type = TEXT;
 	Modifier last_modifier = DEFAULT;
-	bool temp_next_is_first_line = true;
+	bool temp_next_is_first_of_line = true;
 
 	for (int i = 0; i < strlen(content); i++) {
 		
@@ -48,13 +48,13 @@ void tokenizer_tokenize(char *content) {
 		if (str_compare_at_index(content, i, "\n")) {
 			tokenizer_add_token(&tokens_index, NEW_LINE, " ", temp_modifier, true);
 			temp_token_type = NEW_LINE;
-			temp_next_is_first_line = true;
+			temp_next_is_first_of_line = true;
 			cut_output_lines++;	
 		}
 		else if (str_compare_at_index(content, i, "---")) {
 			tokenizer_add_token(&tokens_index, DIVIDER, " ", temp_modifier, true);
 			temp_token_type = DIVIDER;
-			temp_next_is_first_line = true;
+			temp_next_is_first_of_line = true;
 			i += 2;
 		}
 		else if (str_compare_at_index(content, i, "*-") && content[i+2] != '-') {
@@ -76,8 +76,7 @@ void tokenizer_tokenize(char *content) {
 		}
 		else if (str_compare_at_index(content, i, "#")) {
 			temp_token_type = CALLOUT;
-			cut_output_lines += 2;
-			i += 1;
+			cut_output_lines += 1;
 			
 		}
 		if (temp_token_type != NEW_LINE && temp_token_type != DIVIDER) {
@@ -89,8 +88,12 @@ void tokenizer_tokenize(char *content) {
 			int j = 0;
 			while (content[i+j] != '\n') {
 
-				// TODO: you have tot remove this, but it makes the program stop working
-				if (temp_token_type == CALLOUT & temp_next_is_first_line == true) {
+				// TODO: you have to remove this, but it makes the program stop working
+				if (temp_token_type == CALLOUT & temp_is_first_line  == true) {
+					last_token_type = temp_token_type;
+					temp_next_is_first_of_line = false;
+					text_buffer[j] = content[i+j];
+					i++;
 					break;
 				}
 				
@@ -100,8 +103,8 @@ void tokenizer_tokenize(char *content) {
 					continue;
 				}
 
-				if (temp_next_is_first_line == false) {
-					temp_is_first_line = temp_next_is_first_line;
+				if (temp_next_is_first_of_line == false) {
+					temp_is_first_line = temp_next_is_first_of_line;
 					temp_token_type = last_token_type;
 				}
 
@@ -111,13 +114,13 @@ void tokenizer_tokenize(char *content) {
 					cut_output_lines++;
 					last_token_type = temp_token_type;
 					last_modifier = temp_modifier;
-					temp_next_is_first_line = false;
+					temp_next_is_first_of_line = false;
 					break;
 				}
 				else {
 					last_token_type = TEXT;
 					last_modifier = DEFAULT;
-					temp_next_is_first_line = true;
+					temp_next_is_first_of_line = true;
 				}
 				text_buffer[j] = content[i+j];
 				j++;
@@ -126,10 +129,24 @@ void tokenizer_tokenize(char *content) {
 			
 			// then append token and continue to next token
 			tokenizer_add_token(&tokens_index, temp_token_type, text_buffer, temp_modifier, temp_is_first_line);
+			
+			// These two conditions only are true at the same time when the last line of a callout was created
+			if (temp_token_type == CALLOUT && last_token_type == TEXT) {
+				tokenizer_add_token(&tokens_index, temp_token_type, "", temp_modifier, 2); // "is_first_line=3" means it the last line
+				cut_output_lines++;
+			}
+			
 			i += strlen(text_buffer)-1;
 			//output_lines++;	
 		}
 	}
 	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, true);
 	num_tokens = tokens_index;
+
+	// TODO: why this line? Probably because of first or last line of file not adding to total output lines.
+	cut_output_lines++;	
+
+	//for (int i = 0; i < sizeof(tokens)/sizeof(Token); i++) {
+	//	printf("%d - %s\n", tokens[i].token_type, tokens[i].content);
+	//}
 }

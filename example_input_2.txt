@@ -1,0 +1,13 @@
+%c*- Heading 1
+This is text, as an example of what termarkup can do.
+
+
++- Sidearrow! It looks like this
++- Sidearrow! It looks like this
++- Sidearrow! It looks like this
+
+**- Heading 2
+It does not need to be centred...
+
+%cbut it can be!
+

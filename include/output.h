@@ -11,6 +11,6 @@ extern uint16_t output_lines;
 extern uint16_t cut_output_lines;
 
 
-extern void output_generate(void);
+extern void output_generate(FILE *output_file);
 
 #endif 

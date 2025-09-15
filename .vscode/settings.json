@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "indigo-coal",
+    "workbench.colorTheme": "Visual Studio 2017 Dark - C++",
     "files.associations": {
         "print.h": "c",
         "ajw_bool.h": "c",
@@ -10,6 +10,7 @@
         "output.h": "c",
         "stdio.h": "c",
         "theme.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "ajw_file.h": "c"
     }
 }

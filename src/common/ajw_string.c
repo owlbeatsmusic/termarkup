@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "common/ajw_print.h"
-
+#include "common/ajw_string.h"
 
 int str_compare_at_index(char *content, int index, char* compare) {
 	for (int i = 0; i < strlen(compare); i++) {

@@ -8,6 +8,15 @@
 #include "output.h"
 #include "theme.h"
 
+
+/*
+
+	TODO:
+	 	- Bus error when multiple lines of token (e.g. sidearrow) is generated
+		- Callout bordet does not work
+
+*/
+
 const uint16_t main_max_width = 512;
 const uint16_t main_min_width = 10;
 
@@ -20,7 +29,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	if (!strcmp(argv[1], "-version")) {
-		printf("termarkup v1.1 by owlbeatsmusic\n");
+		printf("termarkup v1.1 by Allan Joel Werner\n");
 		return 0;
 	}
 	else if (!strcmp(argv[1], "-help")) {
@@ -117,7 +126,9 @@ int main(int argc, char *argv[]) {
 	free(input_file_content);
 
 	// generate output and create finish up
-	output_generate();
+	output_generate(output_file);
+
+
 
 	fclose(output_file);
 
@@ -133,8 +144,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-
-	
 
 	// done
 	printf("%s termarkup file outputted (%s)\n", PRINT_DONE, output_file_path);

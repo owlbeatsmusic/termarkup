@@ -8,20 +8,20 @@
 #include "theme.h"
 
 Style *styles[MAX_STYLES];
-Style h1_style = {HEADING_1, "&= ", " =&", 3, 3, {NULL}};
-Style h2_style = {HEADING_2, "&&= ", " =&&", 4, 4, {NULL}};
-Style h3_style = {HEADING_3, "&&&= ", " =&&&", 5, 5, {NULL}};
-Style side_arrow_style = {SIDE_ARROW, "> ", "", 2, 0, {NULL}};
-Style divider_style = {DIVIDER, "~", "", 1, 0, {NULL}};
-Style callout_style = {CALLOUT, "", "", 0, 0, {"-", "|", ".", ".", ".", "'", "'", "'"}};
+Style h1_style = {HEADING_1, "*- ", " -*", 3, 3, {NULL}};
+Style h2_style = {HEADING_2, "**- ", " -**", 4, 4, {NULL}};
+Style h3_style = {HEADING_3, "***- ", " -***", 5, 5, {NULL}};
+Style side_arrow_style = {SIDE_ARROW, "╰ ", "", 2, 0, {NULL}};
+Style divider_style = {DIVIDER, "-", "", 1, 0, {NULL}};
+Style callout_style = {CALLOUT, "       ", " ", 7, 1, {"-", "|", "┏", "┳", "┓", "┗", "┻", "┛"}};
 Style text_style = {TEXT, "", "", 0, 0, {NULL}};
 Style new_line_style = {NEW_LINE, "", "", 0, 0, {NULL}};
 
 const uint16_t max_theme_key_size = 64;
 const uint16_t max_theme_value_size = 256;
 
-uint16_t padding_x = 0; // error(28, 25, 22, 20)
-uint16_t padding_y = 0;
+uint16_t padding_x = 5; // error(28, 25, 22, 20)
+uint16_t padding_y = 2;
 bool show_border = true;
 char *border_sheet[] = {"━", "┃", "┏", "┓", "┗", "┛"};
 //char *border_sheet[] = {"-", "|", ".", ".", "'", "'"};
@@ -29,7 +29,7 @@ char *before_padding;
 char *after_padding;
 
 
-void theme_set_token_style(TokenType token, char *value) {
+void theme_set_token_style(TokenType token_type, char *value) {
 	int quotation_indicies[32];
 	int j = 0;
 	for (int i = 0; i < strlen(value); i++) {
@@ -38,15 +38,15 @@ void theme_set_token_style(TokenType token, char *value) {
 			j++;
 		}
 	}
-	if (token == DIVIDER) {
-		styles[token]->before = str_get_string_between_quotations(value, quotation_indicies, 0, 1);
+	if (token_type == DIVIDER) {
+		styles[token_type]->before = str_get_string_between_quotations(value, quotation_indicies, 0, 1);
 	}
-	else if (token == CALLOUT) {
+	else if (token_type == CALLOUT) {
 		for (int i = 0; i < 8; i++) {
-			styles[token]->sheet[i] = str_get_string_between_quotations(value, quotation_indicies, i*2,  i*2+1);
+			styles[token_type]->sheet[i] = str_get_string_between_quotations(value, quotation_indicies, i*2,  i*2+1);
 		}
 	}
-	else if (token == BORDER) {
+	else if (token_type == BORDER) {
 		char *show_border_string = str_get_string_between_quotations(value, quotation_indicies, 0, 1);
 		if (strcmp(show_border_string, "false") == 0) {
 			show_border = false;
@@ -89,9 +89,10 @@ void theme_set_token_style(TokenType token, char *value) {
 		}
 	}
 	else {
-		styles[token]->before = str_get_string_between_quotations(value, quotation_indicies, 0, 1);
-		styles[token]->after = str_get_string_between_quotations(value, quotation_indicies, 2, 3);
-	
+
+		styles[token_type]->before = str_get_string_between_quotations(value, quotation_indicies, 0, 1);
+		styles[token_type]->after = str_get_string_between_quotations(value, quotation_indicies, 2, 3);
+
 		// first "checkpoint"
 		int first_int_start_index = 0;
 		for (int i = quotation_indicies[3]; i < strlen(value); i++) {
@@ -111,7 +112,7 @@ void theme_set_token_style(TokenType token, char *value) {
 			k++;	
 		}
 		k++;
-		styles[token]->before_length = atoi(before_length);	
+		styles[token_type]->before_length = atoi(before_length);	
 
 		// after length
 		char after_length[32];
@@ -121,7 +122,7 @@ void theme_set_token_style(TokenType token, char *value) {
 			after_length[l] = value[first_int_start_index + k + l];
 			l++;
 		}	
-		styles[token]->after_length = atoi(after_length);	
+		styles[token_type]->after_length = atoi(after_length);	
 			
 	}
 }

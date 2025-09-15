@@ -34,10 +34,6 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	// 1. LENGTHS & PADDINGS
 	int before_length = styles[token->token_type]->before_length;
 	int after_length = styles[token->token_type]->after_length;
-	if (token->token_type == CALLOUT & token->is_first_line == 0) {
-		before_length = 7;
-		after_length = 1;
-	}
 
 	int text_length = cut_output_width - (before_length + after_length);
 	if (text_length >= strlen(token->content)) {
@@ -55,30 +51,31 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 		strcpy(output_grid[line][output_width-padding_x-1], border_sheet[1]); // right
 	}
 
+
 	/*  2.2 BEFORE  */
 
 	// store and clear before and after if not first line of token
 	char temp_before[MAX_BEFORE_AFTER_LENGTH];
 	char temp_after[MAX_BEFORE_AFTER_LENGTH];
 	if (token->is_first_line == false) {
-		if (token->token_type != NEW_LINE | token->token_type != DIVIDER | token->token_type != CALLOUT | token->token_type != TEXT) {
+		if (token->token_type != CALLOUT) {
 			strcpy(temp_before, styles[token->token_type]->before);
 			strcpy(temp_after, styles[token->token_type]->after);
-
+			
 			if (before_length > 0) styles[token->token_type]->before[before_length] = '\0';
 			for (int i = 0; i < before_length; i++) {
 				styles[token->token_type]->before[i] = ' ';
 			}
+						
 			if (after_length > 0) styles[token->token_type]->after[after_length] = '\0';
 			for (int i = 0; i < after_length; i++) {
 				styles[token->token_type]->after[i] = ' ';
 			}
 		}
-	}
-	
+	}	
 
 	// set the first index on the screen grid to the before string and remove spaces to compensate
-	if (before_length > 0) {
+	if (before_length > 0 && token->token_type != CALLOUT) {
 		strcpy(output_grid[line][center_padding+padding_x+1], styles[token->token_type]->before);
 		int before_characters_to_remove = before_length - 1; // -1 because the previous index has the whole before string
 		for (int i = 0; i < before_characters_to_remove; i++) { 
@@ -88,18 +85,6 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 
 
 	/*  2.3 TEXT / CONTENT  */
-	if (token->token_type == CALLOUT) {
-		if (token->is_first_line == 1) {
-			strcpy(output_grid[line][padding_x+1], callout_style.sheet[2]);
-			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[3]);
-			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[4]);
-		}
-		if (token->is_first_line == 0) {
-			strcpy(output_grid[line][padding_x+1], callout_style.sheet[1]);
-			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[1]);
-			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[1]);
-		}
-	}
 	if (token->token_type == NEW_LINE) {}
 	else if (token->token_type == DIVIDER) {
 		for (int i = 0; i < cut_output_width; i++) {
@@ -107,16 +92,49 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 		}
 	}
 	else {
-		for (int i = 0; i < text_length & i < text_length; i++) { 
+		for (int i = 0; i < text_length; i++) { 
 			output_grid[line][center_padding + padding_x+before_length+1+i][0] = token->content[i];
 			output_grid[line][center_padding + padding_x+before_length+1+i][1] = '\0';
+		}
+	}
+
+	if (token->token_type == CALLOUT) {
+
+		// above callout
+		if (token->is_first_line == 1 || token->is_first_line == 2) { // first line & last (last only for dividers, symbols are overwritten)
+			strcpy(output_grid[line+1][padding_x+3], token->content);
+			strcpy(output_grid[line][padding_x+1], callout_style.sheet[2]);
+			
+			// short divider 
+			for (int i = 0; i < 3; i++) {
+				strcpy(output_grid[line][padding_x+2+i], callout_style.sheet[0]);
+			}		
+
+			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[3]);
+			
+			// long divider 
+			for (int i = 0; i < cut_output_width - (before_length + after_length) + 2; i++) {
+				strcpy(output_grid[line][padding_x+6+i], callout_style.sheet[0]);
+			}
+
+			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[4]);
+		}
+		if (token->is_first_line == 0) { // middle lines
+			strcpy(output_grid[line][padding_x+1], callout_style.sheet[1]);
+			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[1]);
+			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[1]);
+		}
+		if (token->is_first_line == 2) { // last line
+			strcpy(output_grid[line][padding_x+1], callout_style.sheet[5]);
+			strcpy(output_grid[line][padding_x+1+4], callout_style.sheet[6]);
+			strcpy(output_grid[line][padding_x+cut_output_width], callout_style.sheet[7]);
 		}
 	}
 
 
 	/*  2.4 AFTER  */
 	
-	if (styles[token->token_type]->after_length > 0) {
+	if (styles[token->token_type]->after_length > 0 && token->token_type != CALLOUT) {
 		strcpy(output_grid[line][center_padding+padding_x+before_length+1+text_length], styles[token->token_type]->after);
 
 		int after_characters_to_remove = after_length - 1; // -1 because the previous index has the whole before string
@@ -126,10 +144,11 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 
 	}
 
+
 	
 	//  (2.5 RE-SET BEFORE AND AFTER)
 	if (token->is_first_line == false) {
-		if (token->token_type != NEW_LINE | token->token_type != DIVIDER | token->token_type != CALLOUT | token->token_type != TEXT) {
+		if (token->token_type != CALLOUT) {
 			for (int i = 0; i < strlen(temp_before); i++) {
 				styles[token->token_type]->before[i] = temp_before[i];
 			}
@@ -144,10 +163,11 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 }
 
 
-void output_generate(void) {
+
+void output_generate(FILE *output_file) {
 
 	/* structure of function
-		1. INITIALIZE GRID
+		1. INITIALIZE GRID (grid is the charcter grid outputted to file)
 		2. CREATE BORDER
 		3. OUTPUT THE TOKENS WITH FORMATTING
 		4. PRINT OUTPUT
@@ -158,8 +178,8 @@ void output_generate(void) {
 
 	output_lines = cut_output_lines + 2*padding_y + 2; // +2 for border symbols
 
-	// Create the "Canvas", a grid of characters to draw to.
-	char output_grid[output_lines][output_width][32]; // 4 because of unicode character being more than one character long
+	// Create the "Canvas" (a grid of characters to draw to)
+	char output_grid[output_lines][output_width][32]; // 3D Array because of unicode character being more than one character long so each "cell" can be, in c, multiple charcters long
 	for (int y = 0; y < output_lines; y++) {
 		for (int x = 0; x < output_width; x++) { // +1 for safety when setting border right corners
 			strcpy(output_grid[y][x], " ");
@@ -194,12 +214,12 @@ void output_generate(void) {
 	} 
 
 
-	/* 4. PRINT OUTPUT  */
+	/* 4. PRINT OUTPUT (TO OUTPUT FILE) */
 	for (int y = 0; y < output_lines; y++) {
 		for (int x = 0; x < output_width; x++) { // +1 for safety when setting border right corners
-			printf("%s", output_grid[y][x]);
+			fprintf(output_file, "%s", output_grid[y][x]);
  		}
-		printf("\n");
+		fprintf(output_file, "\n");
 	}
 
 }

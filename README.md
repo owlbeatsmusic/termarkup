@@ -4,7 +4,12 @@ Termarkup
 <p align="center">
 A "Terminal" Plain Text to Plain Text Markup Language.
 </p>
+
+![screenshot of skrot-nav from 2025-02-07](docs/images/example1.png?raw=true)
+<i>Example 1. Input on the left, output on the right. Displayed with vim.</i>
+</br>
 <!-- prettier-ignore -->
+<center>
 <table>
   <thead>
     <tr>
@@ -50,6 +55,7 @@ consectetur.
 
   </tbody>
 </table>
+</center>
 
 > [!WARNING]
 > Use release for functional code. Current code is under development.

@@ -12,8 +12,7 @@
 /*
 
 	TODO:
-	 	- Strange right side border error when empty lines under callout
-		- Strange errors with end of file (should not need a new line at end of file)
+	 	- Error when not choosing theme in arguments
 
 */
 

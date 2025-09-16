@@ -87,7 +87,7 @@ Table of contents
 4. [Themes](#themes)	
 
 ### Command Line Interface
-When running termakrup in your terminal these are the parameters in order.
+When running termakrup in your terminal these are the arguments in order.
 1. **`Input file path`**. [_REQUIRED_]. Path to the file that will be read. It will be read as a plain text file so the suggested file extension is `.txt` but any will work.
 2. **`Output file path`**. [_REQUIRED_]. Path to the file that the output will be written to. It will be written as a plain text file.
 3. **`Width`**. [_REQUIRED_]. Whole number between 10 and 512. The width limits the length of each line/row and separates the text into multiple lines/rows neatly.

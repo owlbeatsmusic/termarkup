@@ -12,7 +12,6 @@
 #include "output.h"
 
 
-bool non_ascii_found_bool = false;
 uint16_t output_width;
 uint16_t cut_output_width;
 uint16_t output_lines;
@@ -39,6 +38,8 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 	if (text_length >= strlen(token->content)) {
 		text_length = strlen(token->content);
 	}
+
+	
 
 	int total_line_empty_space = cut_output_width-text_length-before_length-after_length;
 	int center_padding = 0;
@@ -73,6 +74,7 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 			}
 		}
 	}	
+		
 
 	// set the first index on the screen grid to the before string and remove spaces to compensate
 	if (before_length > 0 && token->token_type != CALLOUT) {
@@ -165,7 +167,6 @@ void output_format_token_to_fit(Token *token, char output_grid[output_lines][out
 
 
 void output_generate(FILE *output_file) {
-
 	/* structure of function
 		1. INITIALIZE GRID (grid is the charcter grid outputted to file)
 		2. CREATE BORDER
@@ -204,15 +205,16 @@ void output_generate(FILE *output_file) {
 	}
 
 	line = padding_y + 1; //one below top border 
+	
 
 	/*  3. ADD ALL TOKENS  */
 	for (int i = 0; i < num_tokens; i++) {
-		if (tokens[i].token_type == NEW_LINE && tokens[i+1].token_type != NEW_LINE) {
+		if (tokens[i].token_type == NEW_LINE && tokens[i+1].token_type != NEW_LINE) { // TODO: va?
 			continue;
 		}
+
 		output_format_token_to_fit(&tokens[i], output_grid);
 	} 
-
 
 	/* 4. PRINT OUTPUT (TO OUTPUT FILE) */
 	for (int y = 0; y < output_lines; y++) {

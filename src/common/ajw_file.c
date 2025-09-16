@@ -5,6 +5,7 @@
 
 
 char *file_to_string(char *file_path) {
+
 	FILE *file = fopen(file_path, "r");
 	if (file == NULL) {
 		printf("%s failed to open file(%s)\n", PRINT_ERROR, file_path);
@@ -13,6 +14,7 @@ char *file_to_string(char *file_path) {
 	fseek(file, 0, SEEK_END);
 	size_t file_size = ftell(file);
 	fseek(file, 0, SEEK_SET);
+
 
 	char *file_content = (char *)malloc(file_size + 2);
 	if (file_content == NULL) {

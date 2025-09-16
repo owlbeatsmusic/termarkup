@@ -2,6 +2,7 @@
 #define TOKENIZER_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
 	DEFAULT,
@@ -34,10 +35,10 @@ typedef struct {
 
 extern const uint16_t max_tokens;
 extern uint16_t num_tokens;
-
 extern Token tokens[];
-
 extern Token new_line_token_default;
+
+extern bool non_ascii_found_bool;
 
 
 extern void tokenizer_tokenize(char *content);

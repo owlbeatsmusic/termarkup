@@ -175,3 +175,14 @@ void theme_set(char *content) {
 		}
 	}
 }
+
+void theme_initialize(void) {
+	styles[0] = &h1_style;
+	styles[1] = &h2_style;
+	styles[2] = &h3_style;
+	styles[3] = &side_arrow_style;
+	styles[4] = &divider_style;
+	styles[5] = &callout_style;
+	styles[6] = &text_style;
+	styles[7] = &new_line_style;
+}

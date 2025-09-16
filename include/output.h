@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-extern bool non_ascii_found_bool;
 extern uint16_t output_width;
 extern uint16_t cut_output_width;
 extern uint16_t output_lines;

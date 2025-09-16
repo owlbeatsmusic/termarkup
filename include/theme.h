@@ -44,4 +44,6 @@ extern char *after_padding;
 
 extern void theme_set(char *content);
 
+extern void theme_initialize(void);
+
 #endif

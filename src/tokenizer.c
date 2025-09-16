@@ -15,6 +15,8 @@ uint16_t num_tokens = 0;
 Token tokens[max_tokens];
 Token new_line_token_default = {TEXT, " ", DEFAULT};
 
+bool non_ascii_found_bool;
+
 
 void tokenizer_add_token(int *tokens_index, TokenType token, char *content, Modifier modifier, uint8_t is_first_line) {
 	tokens[*tokens_index].token_type = token;

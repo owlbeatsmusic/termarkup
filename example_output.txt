@@ -1,31 +1,32 @@
-                                                                                
-                                                                                
-     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     
-     ┃                          *-  Heading 1 -*                          ┃     
-     ┃This is text, as an example of what termarkup can do.               ┃     
-     ┃                                                                    ┃     
-     ┃┏---┳--------------------------------------------------------------┓┃     
-     ┃| $ |  This is a callout! It creates a box.                        |┃     
-     ┃┗---┻--------------------------------------------------------------┛┃     
-     ┃                                                                    ┃     
-     ┃╰  Sidearrow! It looks like this                                    ┃     
-     ┃╰  Sidearrow! It looks like this                                    ┃     
-     ┃╰  Sidearrow! It looks like this                                    ┃     
-     ┃                                                                    ┃     
-     ┃                                                                    ┃     
-     ┃**-  Heading 2 -**                                                  ┃     
-     ┃                                                                    ┃     
-     ┃┏---┳--------------------------------------------------------------┓┃     
-     ┃| + |  The first symbol can be changed and the callout can adjust  |┃     
-     ┃|   |  to multiple lines, as does all other formatters.            |┃     
-     ┃┗---┻--------------------------------------------------------------┛┃     
-     ┃                                                                    ┃     
-     ┃It does not need to be centred...                                   ┃     
-     ┃                                                                    ┃     
-     ┃                           but it can be!                           ┃     
-     ┃                                                                    ┃     
-     ┃                                                                    ┃     
-     ┃                                                                    ┃     
-     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     
-                                                                                
-                                                                                
+                                                                      
+                                                                      
+     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     
+     ┃                     *-  Heading 1 -*                     ┃     
+     ┃This is text, as an example of what termarkup can do.     ┃     
+     ┃                                                          ┃     
+     ┃┏---┳----------------------------------------------------┓┃     
+     ┃| $ |  This is a callout! It creates a box.              |┃     
+     ┃┗---┻----------------------------------------------------┛┃     
+     ┃                                                          ┃     
+     ┃╰  Sidearrow! It looks like this                          ┃     
+     ┃╰  Sidearrow! It looks like this                          ┃     
+     ┃╰  Sidearrow! It looks like this                          ┃     
+     ┃                                                          ┃     
+     ┃                                                          ┃     
+     ┃**-  Heading 2 -**                                        ┃     
+     ┃                                                          ┃     
+     ┃┏---┳----------------------------------------------------┓┃     
+     ┃| + |  The first symbol can be changed and the callout c |┃     
+     ┃|   |  an adjust to multiple lines, as does all other fo |┃     
+     ┃|   |  rmatters.                                         |┃     
+     ┃┗---┻----------------------------------------------------┛┃     
+     ┃                                                          ┃     
+     ┃It does not need to be centred...                         ┃     
+     ┃                                                          ┃     
+     ┃                      but it can be!                      ┃     
+     ┃                                                          ┃     
+     ┃                                                          ┃     
+     ┃                                                          ┃     
+     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     
+                                                                      
+                                                                      

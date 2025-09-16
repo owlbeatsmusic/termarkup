@@ -8,14 +8,6 @@
 #include "output.h"
 #include "theme.h"
 
-
-/*
-
-	TODO:
-	 	- Error when not choosing theme in arguments
-
-*/
-
 const uint16_t main_max_width = 512;
 const uint16_t main_min_width = 10;
 
@@ -38,9 +30,12 @@ int main(int argc, char *argv[]) {
 	}
 	char *input_file_path  = argv[1];
 	char *output_file_path = argv[2];
-	char *theme_file_path;
-	if (argc > 3) theme_file_path  = argv[4];
-	
+	char *theme_file_path = "themes/normal-theme.txt";
+	if (argc > 4) {
+		theme_file_path  = argv[4];
+	}
+
+
 	if (sscanf(argv[3], "%hd", &output_width) != 1) {
 		printf("%s could not convert third argument to int (use -help)\n", PRINT_ERROR);
 		return -1;
@@ -65,16 +60,9 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
-	// open theme and set token-styles to theme
-	// TODO: fix this ugly mess
-	styles[0] = &h1_style;
-	styles[1] = &h2_style;
-	styles[2] = &h3_style;
-	styles[3] = &side_arrow_style;
-	styles[4] = &divider_style;
-	styles[5] = &callout_style;
-	styles[6] = &text_style;
-	styles[7] = &new_line_style;
+
+	// open and set theme
+	theme_initialize();
 	if (theme_file_path != NULL) { 
 		char *theme_file_content = file_to_string(theme_file_path);
 		if (theme_file_content == NULL) {
@@ -86,7 +74,8 @@ int main(int argc, char *argv[]) {
 		free(theme_file_content);
 	}
 
-	// read input file and tokenize
+
+	// read input file
 	char *input_file_content = file_to_string(input_file_path); 
 	if (input_file_content == NULL) {
 		printf("%s failed to open input file(%s)\n", PRINT_ERROR, theme_file_path);
@@ -94,7 +83,7 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
-	// output width of the document (=minus padding and border symbol on both sides ) 
+	// set output width of the document (=minus padding and border symbol on both sides ) 
 	// then check if the cut_output_width is too small and then give error
 	cut_output_width = output_width - 2*padding_x - 2;
 	int largest_before_and_after_length = 0;
@@ -121,17 +110,16 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
+	// tokenize
 	tokenizer_tokenize(input_file_content);
 	free(input_file_content);
 
 	// generate output and create finish up
 	output_generate(output_file);
 
-
-
 	fclose(output_file);
 
-
+	
 	if (theme_file_path != NULL) {
 		for (int i = 0; i < 6; i++) {
 			if (styles[i]->token == CALLOUT) {
@@ -143,6 +131,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+	
 
 	// done
 	printf("%s termarkup file outputted (%s)\n", PRINT_DONE, output_file_path);

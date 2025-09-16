@@ -10,7 +10,7 @@ This is text, as an example of what termarkup can do.
 
 **- Heading 2
 
-#+The first symbol can be changed and the callout can adjust to multiple lines, as does all other formatters.
+%c#+The first symbol can be changed and the callout can adjust to multiple lines, as does all other formatters.
 
 It does not need to be centred...
 

@@ -5,10 +5,12 @@ Termarkup
 A "Terminal" Plain Text to Plain Text Markup Language.
 </p>
 
-![screenshot of skrot-nav from 2025-02-07](docs/images/example1.png?raw=true)
-<i>Example 1. Input on the left, output on the right. Displayed with vim.</i>
-</br>
-<!-- prettier-ignore -->
+## What Is This?
+A terminal can not display a markdown file correctly. What I have wanted for a while is a stylized file "format" to make plain-text files a bit prettier. The main idea from the beginning being the callout (inspired by notions callouts) which would be a pain to create without this language. It was also important from the start to keep everything minimal and simple.
+
+My idea to keep the files tidy is to introduce a width. A text file is pretty much infinite in width (without word-wrap that is) so by limiting the width I could get more structured text files.
+   
+  
 <center>
 <table>
   <thead>
@@ -43,7 +45,7 @@ Lorem ipsum dolor sit amet, consectetur.
 Lorem ipsum dolor sit amet, 
 consectetur.
 ----------------------------
-╰ sidearrow
+╰ side arrow
 ┏---┳----------------------┓
 | $ | callout example. thi |
 |   | s is a test.         | 
@@ -52,19 +54,17 @@ consectetur.
 </pre>
 </td>
 </tr>
-
   </tbody>
 </table>
 </center>
 
-> [!WARNING]
-> Use release for functional code. Current code is under development.
+### Example of files
+The output style can be changed with themes (see [Themes](#themes)). Themes edit the symbols used for the formatting such as the symbol used for the side arrow. The border is optional and adjustable in the theme file as well.
+![screenshot of skrot-nav from 2025-02-07](docs/images/example1.png?raw=true)
+<i>The input file is on the left and the output on the right. Displayed with vim.</i>
+</br>
+</br>
 
-## What Is This?
-*A terminal can not display a markdown file correctly*. What I have wanted for a while is a stylized file "format" to make simple plain-text files a bit prettier. The main idea from the beginning being the callout (inspired by notions callouts) which would be a pain to create without this language. It was also important from the start to keep everything minimal and simple.
-
-*My idea to keep the files tidy is to introduce a width*. A text file is pretty much infinite in width (without word-wrap that is) so by limiting the width I could get more structured text files. (the width can be seen on the divider in the example above)
-   
 ### Install & Use
 (*only compatible for unix systems for now**)
 1. Compile termarkup (run `./make.sh` or just compile with your c compiler because there are no external libraries)
@@ -94,7 +94,7 @@ When running termakrup in your terminal these are the parameters in order.
 4. **`Theme`**. [_OPTIONAL_]. Path to the theme file. Customize the output to your liking. Read more here: [Themes](#themes)	
 
 ### All Formatting
-With a width of `28` and using `themes/normal-theme.txt`
+(With a width of `28` and using `themes/normal-theme.txt`)
 <table><thead><tr>
       <th width="500px"> INPUT</th>
       <th width="500px">OUTPUT</th>
@@ -128,10 +128,10 @@ With a width of `28` and using `themes/normal-theme.txt`
 </code></pre></td></tr></tbody>
 
 <tbody><tr width="600px"><td><pre>
-<code>+-sidearrow
+<code>+-side arrow
 <br><br></code></pre></td>
 <td><pre>
-<code>╰ sidearrow
+<code>╰ side arrow
 </code></pre></td></tr></tbody>
 
 <tbody><tr width="600px"><td><pre>
@@ -167,14 +167,7 @@ heading_1 = ["*- ", " -*", 3, 3]
 ```
 The first two strings are the **before** and **after**. Before is the string that comes before the heading 1 and after is the string that comes after. The two digits are the **before length** and **after length** of their corresponding strings (including white space). This is due to some special charcters being counted as multiple charcters. 
 > [!IMPORTANT]  
-> Remember to change the before and after length when chaning the before and after strings.
-
-**Callout**</br>
-For the border there is "true"/"false" (remember quotations) for if to show border, x-padding & y-padding, and a form of sheet that you modify. You can only **one** symbol per value (although it can be a symbol with length of multiple characters such as a unicode character).
-```
-border = ["true", 5, 2, "┏", "┓", "┗", "┛"]
-```
-
+> Remember to change the before and after length when changing the before and after strings.
 
 **Divider**</br>
 For the divider you do not have to specify the length but in you can only have **one** symbol (although it can be a symbol with length of multiple characters such as a unicode character).
@@ -186,4 +179,10 @@ divider = ["-"]
 For callouts there is a form of sheet that you modify. As with dividers you can only **one** symbol per value (here to it can be a symbol with length of multiple characters such as a unicode character).
 ```
 callout    = ["━", "┃", "┏", "┳", "┓", "┗", "┻", "┛"]
+```
+
+**Border**</br>
+For the border there is "true"/"false" (remember quotations) for if to show border, x-padding & y-padding, and a form of sheet that you modify. You can only **one** symbol per value (although it can be a symbol with length of multiple characters such as a unicode character).
+```
+border = ["true", 5, 2, "┏", "┓", "┗", "┛"]
 ```

@@ -77,7 +77,7 @@ void tokenizer_tokenize(char *content) {
 		else if (str_compare_at_index(content, i, "#")) {
 			temp_token_type = CALLOUT;
 			cut_output_lines += 1;
-			
+			i += 1;
 		}
 		if (temp_token_type != NEW_LINE && temp_token_type != DIVIDER) {
 			char text_buffer[main_max_width];
@@ -88,12 +88,10 @@ void tokenizer_tokenize(char *content) {
 			int j = 0;
 			while (content[i+j] != '\n') {
 
-				// TODO: you have to remove this, but it makes the program stop working
 				if (temp_token_type == CALLOUT & temp_is_first_line  == true) {
 					last_token_type = temp_token_type;
 					temp_next_is_first_of_line = false;
 					text_buffer[j] = content[i+j];
-					i++;
 					break;
 				}
 				
@@ -132,7 +130,7 @@ void tokenizer_tokenize(char *content) {
 			
 			// These two conditions only are true at the same time when the last line of a callout was created
 			if (temp_token_type == CALLOUT && last_token_type == TEXT) {
-				tokenizer_add_token(&tokens_index, temp_token_type, "", temp_modifier, 2); // "is_first_line=3" means it the last line
+				tokenizer_add_token(&tokens_index, temp_token_type, " ", temp_modifier, 2); // "is_first_line=3" means it the last line
 				cut_output_lines++;
 			}
 			
@@ -143,13 +141,12 @@ void tokenizer_tokenize(char *content) {
 
 	// fix for end of file
 	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, 1);
-	tokenizer_add_token(&tokens_index, NEW_LINE, "", DEFAULT, 1);
 	num_tokens = tokens_index;
 
 	// TODO: why this line? Probably because of first or last line of file not adding to total output lines.
-	cut_output_lines++;	
+	cut_output_lines++;
 
 	//for (int i = 0; i < sizeof(tokens)/sizeof(Token); i++) {
-	//	printf("%d - %s\n", tokens[i].token_type, tokens[i].content);
+	//	printf("%d - %d\n", tokens[i].token_type, tokens[i].is_first_line);
 	//}
 }

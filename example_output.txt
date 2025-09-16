@@ -1,40 +1,31 @@
                                                                                 
                                                                                 
      ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     
-     ┃╰ abaa kjsdhfdsfhjkdshfhdsjkfdkshfjkdshjkfhdsjkhfkjdshjkfhdskjhfkjd ┃     
-     ┃  shfkdshjkfdhskjfhdskjkjsdhf kjhdsfjkh kdjshfj hdsjkfhd kjshfjk ds ┃     
-     ┃  hjkfh jksdhfkj dshfkj hdskjfh djksjk                              ┃     
-     ┃***- aba2shfgjk dfhgjk fdkghjk fdhgjkh jdkfhgkj fdhjkgh jkfdhg -*** ┃     
-     ┃     jk fdhkjghkjfhk                                                ┃     
-     ┃                                                                    ┃     
-     ┃    ***- abdskjfdsfjhdsjkfdshfjkdshjkfhjdkshfjkdskjfhjkdsh -***     ┃     
-     ┃//%c**-xyxkkl djfgkljfk djgkldfj klgjdkfj gkljdfkl gjkldfjglk jdflk ┃     
-     ┃jg kldfjgdfklgjfj                                                   ┃     
-     ┃//%c***-abaa                                                        ┃     
-     ┃***- aba2 -***                                                      ┃     
-     ┃                                                                    ┃     
-     ┃────────────────────────────────────────────────────────────────────┃     
-     ┃                                                                    ┃     
-     ┃Lorem ipsum dolor sit amet, consectetur.                            ┃     
+     ┃                          *-  Heading 1 -*                          ┃     
+     ┃This is text, as an example of what termarkup can do.               ┃     
      ┃                                                                    ┃     
      ┃┏---┳--------------------------------------------------------------┓┃     
-     ┃| # |  Callout                                                     |┃     
+     ┃| $ |  This is a callout! It creates a box.                        |┃     
      ┃┗---┻--------------------------------------------------------------┛┃     
-     ┃┏---┳--------------------------------------------------------------┓┃     
-     ┃| # |  Callout 1callout2callout3callout4calloutcallout6callout7cal |┃     
-     ┃|   |  lout8callout9callout0callout                                |┃     
-     ┃┗---┻--------------------------------------------------------------┛┃     
-     ┃                                                                   ┃     
+     ┃                                                                    ┃     
+     ┃╰  Sidearrow! It looks like this                                    ┃     
+     ┃╰  Sidearrow! It looks like this                                    ┃     
+     ┃╰  Sidearrow! It looks like this                                    ┃     
      ┃                                                                    ┃     
      ┃                                                                    ┃     
-     ┃╰ abaa kjsdhfdsfhjkdshfhdsjkfdkshfjkdshjkfhdsjkhfkjdshjkfhdskjhfkjd ┃     
-     ┃  shfkdshjkfdhskjfhdskjkjsdhf kjhdsfjkh kdjshfj hdsjkfhd kjshfjk ds ┃     
-     ┃  hjkfh jksdhfkj dshfkj hdskjfh djksjk                              ┃     
+     ┃**-  Heading 2 -**                                                  ┃     
      ┃                                                                    ┃     
      ┃┏---┳--------------------------------------------------------------┓┃     
-     ┃| # |  Callout                                                     |┃     
+     ┃| + |  The first symbol can be changed and the callout can adjust  |┃     
+     ┃|   |  to multiple lines, as does all other formatters.            |┃     
      ┃┗---┻--------------------------------------------------------------┛┃     
-     ┃                                                                   ┃     
-     ┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃     
+     ┃                                                                    ┃     
+     ┃It does not need to be centred...                                   ┃     
+     ┃                                                                    ┃     
+     ┃                           but it can be!                           ┃     
+     ┃                                                                    ┃     
+     ┃                                                                    ┃     
+     ┃                                                                    ┃     
+     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     
                                                                                 
                                                                                 

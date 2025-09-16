@@ -1,3 +1,18 @@
-#$Callout 1callout2callout3callout4callout5callout6callout7callout8callout9callout0callout
-123
-hejsan
+%c*- Heading 1
+This is text, as an example of what termarkup can do.
+
+#$This is a callout! It creates a box.
+
++- Sidearrow! It looks like this
++- Sidearrow! It looks like this
++- Sidearrow! It looks like this
+
+
+**- Heading 2
+
+#+The first symbol can be changed and the callout can adjust to multiple lines, as does all other formatters.
+
+It does not need to be centred...
+
+%cbut it can be!
+

@@ -14,13 +14,13 @@ char *file_to_string(char *file_path) {
 	size_t file_size = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	char *file_content = (char *)malloc(file_size + 1);
+	char *file_content = (char *)malloc(file_size + 2);
 	if (file_content == NULL) {
 		fclose(file);
 		printf("%s failed to allocate memory for contents of \"%s\"\n", PRINT_ERROR, file_path);
 		return NULL;
 	}
-	file_content[file_size] = '\0';
+	file_content[file_size+1] = '\0';
 
 	size_t file_read_size = fread(file_content, 1, file_size, file);
 	if (file_read_size != file_size) {
@@ -29,6 +29,9 @@ char *file_to_string(char *file_path) {
 		printf("%s failed to read file (%s)\n", PRINT_ERROR, file_path);
 		return NULL;
 	}
+
+	file_content[file_size] = '\n'; // to avoid cutting of at end of file
+
 	fclose(file);
 	return file_content;
 }
